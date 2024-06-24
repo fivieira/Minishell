@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/06/23 13:24:42 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/06/24 21:27:02 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,15 +16,53 @@
 # include <stdio.h> //for printf
 # include <readline/readline.h> // for rl library
 # include <readline/history.h> // for rl history functionality
+# include <errno.h> // for error handeling
+# include <sys/wait.h> // for waiting for child processes
 # include "../libft/libft.h"
 
 # define PROMPT "WRITE SOMETHING, BITCH: "
 # define LAUNCH_ERROR "Did you actually give arguments to launch a shell?\nWhat are you, some kind of idiot?\n"
+# define FORK_ERROR "This fork mf decided to be a little bitch."
 
 // characher sets for token delimitation
 # define WHITESPACE " \t\r\n\v"
 # define TOKEN_DELIMS " <>|$"
 
-char	get_token(char **ps, char *es, char **t, char **et);
+// Types of nodes
+# define EXEC 1
+# define REDIR 2
+# define PIPE 3
+
+//General struct that can be tyoecasted into any node type
+typedef struct	s_cmd
+{
+	int	type;
+}	t_cmd;
+
+typedef struct	s_exec
+{
+	int	type;
+	char	**argv;
+	char	**eargv;
+}	t_exec;
+
+typedef struct	s_redir
+{
+	int	type;
+	t_exec	*cmd;
+	char	*file;
+	char	*efile;
+	int	mode;
+	int	fd;
+}	t_redir;
+
+typedef struct	s_pipe
+{
+	int	type;
+	t_cmd	*left;
+	t_cmd	*right;
+}	t_pipe;
+
+char	get_token(char **ps, char **t, char **et);
 
 #endif
