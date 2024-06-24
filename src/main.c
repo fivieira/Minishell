@@ -6,44 +6,48 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/06/23 13:42:33 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/06/24 21:37:01 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-void	Dprint_token(char *start, char *end)
+t_cmd	*parse_exec(
+
+t_cmd	*parse_pipe(char *line)
 {
-	while (start < end)
-	{
-		write(1, start, 1);
-		start++;
-	}
-	write(1, "\n", 1);
+	
 }
+
+t_cmd	*parse_line(
 
 int	main(int argc, char **argv, char **envp)
 {
 	char	*line;
-	char	*token;
-	char	*etoken;
+	pid_t	cpid;
+	int	cp_status;
+
 
 	if (argc != 1)
-		return (printf(LAUNCH_ERROR), 0);
+		return (ft_putstr_fd(LAUNCH_ERROR, 2), 0);
 	(void)argv;
 	(void)envp;
 	while (1)
 	{
 		line = readline(PROMPT);
-		while (line != line + ft_strlen(line))
+		cpid = fork();
+		if (cpid == -1)
+			return (ft_putstr_fd(FORK_ERROR, 2), errno);
+		else if (cpid == 0)
+			parse_pipe(line);
+		wait(&cp_status);
+		if (WIFEXITED(cp_status)) //exited normally
+			errno = WEXITSTATUS(cp_status);
+		else
 		{
-			printf("-------------NEW TOKEN FOUND-------------\n");
-			printf("Token symbol: %c\n",
-					get_token(&line, line + ft_strlen(line),
-						&token, &etoken));
-			Dprint_token(token, etoken);
-			printf("Rest of string: %s\n", line);
+			// TODO: THIS ELSE HANDLES EXITING THROUGH SIGNALS
 		}
+		free(line);
 	}
-	return (0);
+	return (errno);
 }
