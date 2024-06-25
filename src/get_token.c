@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/23 11:54:17 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/06/24 21:26:46 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/06/25 15:14:02 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ static char	parse_letters(char **s)
 	return ('a');
 }
 
-char	get_token(char **ps, char **t, char **et)
+char	get_token(char **ps, char **t)
 {
 	char	*s;
 	char	ret;
@@ -63,8 +63,6 @@ char	get_token(char **ps, char **t, char **et)
 		s++;
 	else
 		ret = parse_letters(&s);
-	if (et)
-		*et = s;
 	while (*s && ft_strchr(WHITESPACE, *s))
 		s++;
 	*ps = s;
