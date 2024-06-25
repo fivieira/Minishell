@@ -6,7 +6,7 @@
 #    By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/21 15:06:49 by ndo-vale          #+#    #+#              #
-#    Updated: 2024/06/24 19:34:03 by ndo-vale         ###   ########.fr        #
+#    Updated: 2024/06/25 15:14:50 by ndo-vale         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ RM	= rm -rf
 
 SRC_DIR		= src/
 OBJ_DIR		= obj/
-SRCS		= $(addprefix $(SRC_DIR), main.c get_token.c)
+SRCS		= $(addprefix $(SRC_DIR), main.c get_token.c constructors.c)
 OBJS		= $(SRCS:$(SRC_DIR)%.c=$(OBJ_DIR)%.o)
 
 LIBFT_DIR	= ./libft
