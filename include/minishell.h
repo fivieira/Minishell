@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/06/25 16:44:53 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/06/26 11:08:49 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ typedef struct	s_cmd
 typedef struct	s_exec
 {
 	int	type;
-	char	**argv;
+	t_list	*argv;
 }	t_exec;
 
 typedef struct	s_redir
