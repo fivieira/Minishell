@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/06/25 16:44:24 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/06/26 11:36:19 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ t_cmd	*parse_redir(t_cmd *cmd, char **ps)
 
 	while (peek(ps, "<>"))
 	{
-		token = get_token(ps, 0);
+		token = get_token(ps, NULL);
 		if (get_token(ps, &file_pos) != 'a')
 			return (NULL); //TODO: How to inform about syntax error??
 		if (token == '<')
@@ -49,30 +49,19 @@ t_cmd	*parse_exec(char **ps)
 {
 	t_cmd	*node;
 	t_exec	*full_node;
-	char	token;
 	char	*arg_pos;
-	int	argc;
 
-	node = exec_cmd();
-	full_node = (t_exec *)node;
-	node = parse_redir(node, ps);
-	argc = 0
-	while(!peek(ps, "|"))
+	full_cmd = exec_cmd();
+	exec_node = (t_exec *)node;
+	full_cmd = parse_redir(node, ps);
+	while(!peek(ps, "|\0"))
 	{
-		token = get_token(ps, &arg_pos);
-		if (token == 0)
-			break ;
-		if (token != 'a')
+		if (get_token(ps, &arg_pos) != 'a')
 			return (NULL) //TODO: How to inform about syntax error??
-		full_node->argv[argc] = arg_pos; //TODO: IMPORTANT!!!!!
-						 //Memory for this has to be allocated
-						 //at some point. How to make it dynamic
-						 //so it can accept any number of arguments???
-		argc++;
-		node = parse_redir(node, ps);
+		ft_lstadd_back(&(exec_node->argv), ft_lstnew(arg_pos));
+		node = parse_redir(full_cmd, ps);
 	}
-	full_node->argv[argc] = NULL;
-	return (node);
+	return (full_cmd);
 }
 
 t_cmd	*parse_pipe(char **ps)
@@ -80,7 +69,7 @@ t_cmd	*parse_pipe(char **ps)
 	t_cmd	*node;
 
 	node = parse_exec(ps);
-	if (get_token(ps, 0, 0) == "|")
+	if (get_token(ps, NULL) == "|")
 		node = pipe_cmd(node, parse_pipe(ps));
 	return (node);
 }
