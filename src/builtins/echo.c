@@ -6,32 +6,55 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/27 10:29:53 by fivieira          #+#    #+#             */
-/*   Updated: 2024/06/27 12:49:11 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/06/27 21:28:35 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-void	exec_echo(int ac, char *av[])
+bool	find_n(char *str)
 {
-	bool	flag;
-	
-	flag = true;
-	if (ac == 1)
-		flag = false;
-	while (av[ac])
+	int	i;
+
+	i = 0;
+	if(!str[i])
+		return (false);
+	if(str[i] && str[i] == '-')
 	{
-		printf("%s", av[ac]);
-		if(av[ac + 1])
-			printf(" ");
-		ac++;	
+		while(str[++i])
+		{
+			if(str[i] != 'n')
+				return (false);
+		}
+		if(str[i - 1] == 'n')
+			return (true);
+	}
+	return (false);
+}
+
+void	echo(char **msg)
+{
+	int	i;
+	bool	flag;
+	char	*temp;
+
+	i = 0;
+	flag = false;
+	while(msg[++i] && find_n(msg[i]))
+		flag = true;
+	while(msg[i] != NULL)
+	{
+		temp = ft_strdups(msg[i]);
+		if(temp)
+		{
+			printf("%s", temp);
+			free(temp);
+			if(msg[i + 1] != NULL)
+				printf(" ");
+		}
+		i++;
 	}
 	if(!flag)
 		printf("\n");
+	return (0);	
 }
-
-void	echo(t_exec * msg)
-{
-	
-}
-
