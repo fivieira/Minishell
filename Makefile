@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+         #
+#    By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/21 15:06:49 by ndo-vale          #+#    #+#              #
-#    Updated: 2024/06/25 15:14:50 by ndo-vale         ###   ########.fr        #
+#    Updated: 2024/06/27 12:40:59 by fivieira         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,11 +18,17 @@ RM	= rm -rf
 
 SRC_DIR		= src/
 OBJ_DIR		= obj/
-SRCS		= $(addprefix $(SRC_DIR), main.c get_token.c constructors.c)
+SRCS		=  main.c get_token.c constructors.c \
+					builtins/echo.c
+					
+#				continue to implement			
+
 OBJS		= $(SRCS:$(SRC_DIR)%.c=$(OBJ_DIR)%.o)
 
 LIBFT_DIR	= ./libft
 LIBFT		= $(LIBFT_DIR)/libft.a
+
+MAKE = make -C
 
 all: $(NAME)
 
