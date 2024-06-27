@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/06/26 11:08:49 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/06/27 12:45:48 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,11 @@
 # include <errno.h> // for error handeling
 # include <sys/wait.h> // for waiting for child processes
 # include "../libft/libft.h"
+# include <stdbool.h>
+# include <signal.h>
+# include <fcntl.h>
+# include <unistd.h>
+# include <limits.h>
 
 # define PROMPT "WRITE SOMETHING, BITCH: "
 # define LAUNCH_ERROR "Did you actually give arguments to launch a shell?\nWhat are you, some kind of idiot?\n"
