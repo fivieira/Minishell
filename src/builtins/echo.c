@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/27 10:29:53 by fivieira          #+#    #+#             */
-/*   Updated: 2024/06/27 21:28:35 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/06/28 10:53:15 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ void	echo(char **msg)
 		flag = true;
 	while(msg[i] != NULL)
 	{
-		temp = ft_strdups(msg[i]);
+		temp = ft_strdup(msg[i]);
 		if(temp)
 		{
 			printf("%s", temp);
@@ -56,5 +56,4 @@ void	echo(char **msg)
 	}
 	if(!flag)
 		printf("\n");
-	return (0);	
 }
