@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/06/27 12:45:48 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/06/28 11:15:42 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,5 +72,10 @@ t_cmd	*pipe_cmd(t_cmd *left, t_cmd *right);
 t_cmd	*redir_cmd(t_exec *cmd, char *file, int mode, int fd);
 
 char	get_token(char **ps, char **t);
+
+
+// echo.c
+void	echo(char **msg);
+bool	find_n(char *str);
 
 #endif
