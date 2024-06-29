@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/06/28 11:15:42 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/06/29 16:45:09 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,11 @@ typedef struct	s_pipe
 	t_cmd	*right;
 }	t_pipe;
 
+typedef struct s_localenv
+{
+	char **content;
+}	t_localenv;
+
 // Constructors
 t_cmd	*exec_cmd(void);
 t_cmd	*pipe_cmd(t_cmd *left, t_cmd *right);
@@ -77,5 +82,7 @@ char	get_token(char **ps, char **t);
 // echo.c
 void	echo(char **msg);
 bool	find_n(char *str);
+
+char	*ft_getenv(const char *name, char **envp)
 
 #endif
