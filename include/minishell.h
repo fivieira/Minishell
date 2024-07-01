@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/01 10:48:01 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/01 13:40:54 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,11 @@
 // characher sets for token delimitation
 # define WHITESPACE " \t\r\n\v"
 # define TOKEN_DELIMS " <>|$"
+
+// Flags for input cleaning
+# define F_OPEN_SINGLE 0
+# define F_OPEN_DOUBLE 1
+# define F_PIPE 2
 
 // Types of nodes
 # define EXEC 1
@@ -71,7 +76,11 @@ typedef struct s_localenv
 	char **content;
 }	t_localenv;
 
-// Constructors
+// helpers.c
+int	is_fon(int flags, int f);
+void	set_flag(int *flags, int f, bool set);
+
+// constructors.c
 t_cmd	*exec_cmd(void);
 t_cmd	*pipe_cmd(t_cmd *left, t_cmd *right);
 t_cmd	*redir_cmd(t_cmd *cmd, char *file, int mode, int fd);

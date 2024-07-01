@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/01 10:55:02 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/01 17:26:44 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,21 +22,6 @@ int	peek(char **ps, char *chars)
 	*ps = s;
 	return (*s && ft_strchr(chars, *s));
 }
-/*
-char	*clean_input(char *cmd)
-{
-	char	*out;
-	int	open_single;
-	int	open_double;
-
-	out = ft_strdup("");
-	if (!out)
-		return (NULL); //TODO: DEAL WITH ERROR
-	while (*cmd)
-	{
-		if 
-	}
-}*/
 
 t_cmd	*parse_redir(t_cmd *cmd, char **ps)
 {
