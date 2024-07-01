@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/06/26 11:36:19 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/06/28 15:31:37 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,21 @@ int	peek(char **ps, char *chars)
 		s++;
 	*ps = s;
 	return (*s && ft_strchr(chars, *s));
+}
+
+char	*clean_input(char *cmd)
+{
+	char	*out;
+	int	open_single;
+	int	open_double;
+
+	out = ft_strdup("");
+	if (!out)
+		return (NULL); //TODO: DEAL WITH ERROR
+	while (*cmd)
+	{
+		if 
+	}
 }
 
 t_cmd	*parse_redir(t_cmd *cmd, char **ps)
@@ -99,7 +114,7 @@ int	main(int argc, char **argv, char **envp)
 		line = readline(PROMPT);
 		cpid = fork();
 		if (cpid == -1)
-			return (ft_putstr_fd(FORK_ERROR, 2), errno);
+			return (perror("fork"), errno);
 		//else if (cpid == 0)
 		//	parse_pipe(line);
 		wait(&cp_status);
