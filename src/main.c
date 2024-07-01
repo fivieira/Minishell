@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/06/26 11:36:19 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/01 10:55:02 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,21 @@ int	peek(char **ps, char *chars)
 	*ps = s;
 	return (*s && ft_strchr(chars, *s));
 }
+/*
+char	*clean_input(char *cmd)
+{
+	char	*out;
+	int	open_single;
+	int	open_double;
+
+	out = ft_strdup("");
+	if (!out)
+		return (NULL); //TODO: DEAL WITH ERROR
+	while (*cmd)
+	{
+		if 
+	}
+}*/
 
 t_cmd	*parse_redir(t_cmd *cmd, char **ps)
 {
@@ -38,28 +53,28 @@ t_cmd	*parse_redir(t_cmd *cmd, char **ps)
 		else if (token == '-')
 			;//TODO: IMPLEMENT HEREDOC
 		else if (token == '>')
-			cmd = redir_cmd(cmd, file_pos, O_WRONLY|O_CREATE|O_TRUNC, 1);
+			cmd = redir_cmd(cmd, file_pos, O_WRONLY|O_CREAT|O_TRUNC, 1);
 		else if (token == '+')
-			cmd = redir_cmd(cmd, file_pos, O_WRONLY|O_CREATE|O_APPEND, 1); 
+			cmd = redir_cmd(cmd, file_pos, O_WRONLY|O_CREAT|O_APPEND, 1); 
 	}
 	return (cmd);
 }
 
 t_cmd	*parse_exec(char **ps)
 {
-	t_cmd	*node;
-	t_exec	*full_node;
+	t_cmd	*full_cmd;
+	t_exec	*exec_node;
 	char	*arg_pos;
 
 	full_cmd = exec_cmd();
-	exec_node = (t_exec *)node;
-	full_cmd = parse_redir(node, ps);
+	exec_node = (t_exec *)full_cmd;
+	full_cmd = parse_redir(full_cmd, ps);
 	while(!peek(ps, "|\0"))
 	{
 		if (get_token(ps, &arg_pos) != 'a')
-			return (NULL) //TODO: How to inform about syntax error??
+			return (NULL); //TODO: How to inform about syntax error??
 		ft_lstadd_back(&(exec_node->argv), ft_lstnew(arg_pos));
-		node = parse_redir(full_cmd, ps);
+		full_cmd = parse_redir(full_cmd, ps);
 	}
 	return (full_cmd);
 }
@@ -69,7 +84,7 @@ t_cmd	*parse_pipe(char **ps)
 	t_cmd	*node;
 
 	node = parse_exec(ps);
-	if (get_token(ps, NULL) == "|")
+	if (get_token(ps, NULL) == '|')
 		node = pipe_cmd(node, parse_pipe(ps));
 	return (node);
 }
@@ -99,7 +114,7 @@ int	main(int argc, char **argv, char **envp)
 		line = readline(PROMPT);
 		cpid = fork();
 		if (cpid == -1)
-			return (ft_putstr_fd(FORK_ERROR, 2), errno);
+			return (perror("fork"), errno);
 		//else if (cpid == 0)
 		//	parse_pipe(line);
 		wait(&cp_status);
