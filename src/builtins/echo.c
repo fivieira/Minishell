@@ -6,11 +6,11 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/27 10:29:53 by fivieira          #+#    #+#             */
-/*   Updated: 2024/06/28 10:53:15 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/01 10:58:36 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
+#include "../../include/minishell.h"
 
 bool	find_n(char *str)
 {

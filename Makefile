@@ -6,7 +6,7 @@
 #    By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/21 15:06:49 by ndo-vale          #+#    #+#              #
-#    Updated: 2024/06/29 16:47:08 by fivieira         ###   ########.fr        #
+#    Updated: 2024/07/01 11:04:42 by ndo-vale         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,10 +18,10 @@ RM	= rm -rf
 
 SRC_DIR		= src/
 OBJ_DIR		= obj/
-SRCS		=  main.c get_token.c constructors.c \
-					builtins/echo.c
-					builtins/pwd.c
-					builtins/export/getenv.c
+SRCS		= $(addprefix $(SRC_DIR), main.c get_token.c constructors.c \
+					builtins/echo.c \
+					builtins/pwd.c \
+					builtins/export/ft_getenv.c)
 					
 #				continue to implement			
 

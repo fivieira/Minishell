@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/25 14:29:55 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/06/25 15:35:53 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/01 10:57:45 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ t_cmd	*pipe_cmd(t_cmd *left, t_cmd *right)
 	return ((t_cmd *)pipe_node);
 }
 
-t_cmd	*redir_cmd(t_exec *cmd, char *file, int mode, int fd)
+t_cmd	*redir_cmd(t_cmd *cmd, char *file, int mode, int fd)
 {
 	t_redir	*redir_node;
 

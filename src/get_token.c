@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/23 11:54:17 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/06/26 11:25:51 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/01 10:55:33 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ char	get_token(char **ps, char **token_pos)
 	s = *ps;
 	while (*s && ft_strchr(WHITESPACE, *s))
 		s++;
-	if (t)
+	if (token_pos)
 		*token_pos = s;
 	ret = *s;
 	if (ret == 0)

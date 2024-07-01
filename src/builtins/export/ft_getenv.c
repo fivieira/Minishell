@@ -6,11 +6,11 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/29 16:43:57 by fivieira          #+#    #+#             */
-/*   Updated: 2024/06/29 16:44:19 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/01 11:05:24 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
+#include "../../../include/minishell.h"
 
 char	*ft_getenv(const char *name, char **envp)
 {

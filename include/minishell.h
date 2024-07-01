@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/06/29 16:45:09 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/01 10:48:01 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ typedef struct	s_exec
 typedef struct	s_redir
 {
 	int	type;
-	t_exec	*cmd;
+	t_cmd	*cmd;
 	char	*file;
 	int	mode;
 	int	fd;
@@ -74,7 +74,7 @@ typedef struct s_localenv
 // Constructors
 t_cmd	*exec_cmd(void);
 t_cmd	*pipe_cmd(t_cmd *left, t_cmd *right);
-t_cmd	*redir_cmd(t_exec *cmd, char *file, int mode, int fd);
+t_cmd	*redir_cmd(t_cmd *cmd, char *file, int mode, int fd);
 
 char	get_token(char **ps, char **t);
 
@@ -83,6 +83,6 @@ char	get_token(char **ps, char **t);
 void	echo(char **msg);
 bool	find_n(char *str);
 
-char	*ft_getenv(const char *name, char **envp)
+char	*ft_getenv(const char *name, char **envp);
 
 #endif
