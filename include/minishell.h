@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/01 13:40:54 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/02 15:19:51 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 # include <unistd.h>
 # include <limits.h>
 
-# define PROMPT "WRITE SOMETHING, BITCH: "
+# define PROMPT "THE FUCK DO YOU WANT?: "
 # define LAUNCH_ERROR "Did you actually give arguments to launch a shell?\nWhat are you, some kind of idiot?\n"
 # define FORK_ERROR "This fork mf decided to be a little bitch."
 
@@ -37,6 +37,7 @@
 # define F_OPEN_SINGLE 0
 # define F_OPEN_DOUBLE 1
 # define F_PIPE 2
+# define F_SPACE 3
 
 // Types of nodes
 # define EXEC 1
@@ -86,7 +87,7 @@ t_cmd	*pipe_cmd(t_cmd *left, t_cmd *right);
 t_cmd	*redir_cmd(t_cmd *cmd, char *file, int mode, int fd);
 
 char	get_token(char **ps, char **t);
-
+char	*clean_input(char *cmd, char **envp);
 
 // echo.c
 void	echo(char **msg);

@@ -6,29 +6,74 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/01 14:47:53 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/01 21:18:50 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/02 21:18:23 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-int	get_single_quoted(char **cmd, char **out)
+bool	is_char_env(char c)
 {
+	return ((c >= 'A' && c <='Z') || (c >= 'a' && c <= 'z')
+		|| (c >= '0' && c <= '9') || c == '_');
+} //AKA isalphanum LMAO
+
+int	ft_expand_env(char **cmd, char **token, char **envp)
+{
+	int	count;
+	char	*value;
+
+	count = 0;
+	*cmd += 1;
+	while (is_char_env((*cmd)[count]))
+		count++;
+	value = ft_getenv(ft_strndup(*cmd, count), envp);
+	if (!value)
+	{
+		return (0);
+	}
+	*token = ft_strjoin(*token, value);
+	(*cmd) += count;
+	return (ft_strlen(value));
+}
+
+int	get_quoted(char **cmd, char **token, char c, char **envp)
+{
+	char	*start;
 	char	*tmp;
 	int	count;
 
 	count = 0;
-	while ((*cmd)[count] != '\'')
+	*cmd += 1;
+	start = *cmd;
+	while (**cmd != c)
 	{
-		if ((*cmd)[count] == '\0')
-			return -1; //TODO: SYNTAX ERROR: NO CLOSING SINGLE QUOTE
-		count++;
+		if (c == '\"' && **cmd == '$')
+		{
+			tmp = (char *)ft_calloc(count + 1, sizeof(char));
+			ft_strlcpy(tmp, start, count + 1);
+			*token = ft_strjoin(*token, tmp);
+			count += ft_expand_env(cmd, token, envp);
+			start = *cmd;
+		}
+		else if (**cmd == '\0')
+			return (-1); //TODO: SYNTAX ERROR: QUOTE NOT CLOSED
+		else
+		{
+			count++;
+			*cmd += 1;
+		}
 	}
+	// TODO: CANNOT USE 'COUNT' HERE: AFTER EXPAND, COUNT IS MUCH BIGGER
+	// THAN NECESSARY AND CATCHES ANY CHARS AFTER THE END OF THE ENV VAR
+	// SO IT PRINTS THEM WHEN IT SHOULDNT
 	tmp = (char *)ft_calloc(count + 1, sizeof(char));
-	ft_strlcpy(tmp, *cmd, count + 1);
-	*out = ft_strjoin(*out, tmp);
+	ft_strlcpy(tmp, start, count + 1);
+	ft_printf("%s\n", tmp);
+	*token = ft_strjoin(*token, tmp);
 	free(tmp);
-	*cmd += count + 1;
+	*cmd += 1;
+
 	return (count);
 }
 
@@ -44,45 +89,69 @@ char	*str_cappend(char* str, char c)
 	return (out);
 }
 
-char    *clean_input(char *cmd)
+char    *clean_input(char *cmd, char **envp)
 {
         char    *out;
+	char	*token;
         int     flags;
         int     count;
 
         out = ft_strdup("");
-        flags = 1 << F_PIPE;
+	token = ft_strdup("");
+        flags = (1 << F_PIPE) | (1 << F_SPACE);
 	count = 0;
-	printf("%s\n", cmd);
         if (!out)
                 return (NULL); //TODO: DEAL WITH ERROR
         while (*cmd)
         {
-		printf("%c\n", *cmd);
 		if (is_fon(flags, F_OPEN_SINGLE))
 		{
-			count += get_single_quoted(&cmd, &out);
-			printf("%c\n", *cmd);
+			count += get_quoted(&cmd, &token, '\'', envp);
 			set_flag(&flags, F_OPEN_SINGLE, false);
 		}
-		else if (*cmd == '\'')
+		else if (is_fon(flags, F_OPEN_DOUBLE))
 		{
+			count += get_quoted(&cmd, &token, '\"', envp);
+			set_flag(&flags, F_OPEN_DOUBLE, false);
+		}
+		else if (*cmd == '\'')
 			set_flag(&flags, F_OPEN_SINGLE, true);
+		else if (*cmd == '\"')
+		{
+			set_flag(&flags, F_OPEN_DOUBLE, true);
+		}
+		else if (*cmd == ' ')
+		{
+			if (!is_fon(flags, F_SPACE))
+			{
+				out = ft_strjoin(out, ft_itoa(count));
+				out = str_cappend(out, '\"');
+				out = ft_strjoin(out, token);
+				count = 0;
+				free(token);
+				token = ft_strdup("");
+				set_flag(&flags, F_SPACE, true);
+			}
 			cmd += 1;
+			continue;
+		}
+		else if (*cmd == '$')
+		{
+			count += ft_expand_env(&cmd, &token, envp);
 		}
 		else
 		{
-			out = str_cappend(out, *cmd); 
-			cmd += 1;
+			token = str_cappend(token, *cmd); 
 			count++;
+			cmd += 1;
 		}
+		set_flag(&flags, F_SPACE, false);
         }
-	printf("%i: %s", count, out); //TODO: FIX LEAKS
-	return (out);
-}
-
-int	main(int argc, char **argv)
-{
-	(void)argc;
-	clean_input(argv[1]);
+	if (count)
+	{
+		out = ft_strjoin(out, ft_itoa(count));
+		out = str_cappend(out, '\"');
+		out = ft_strjoin(out, token); //TODO; MAYBE I CAN BUILD THIS WITH LISTS INSTEAD??
+	}
+	return (out); //TODO: FIX LEAKS
 }

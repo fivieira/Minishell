@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/01 17:26:44 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/02 15:20:48 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,7 @@ void	parse_line(char *line)
 	tree = parse_pipe(&ps);
 }
 
+/*
 int	main(int argc, char **argv, char **envp)
 {
 	char	*line;
@@ -112,4 +113,18 @@ int	main(int argc, char **argv, char **envp)
 		free(line);
 	}
 	return (errno);
+}*/
+
+int	main(int argc, char **argv, char **envp)
+{
+	char	*line;
+
+	(void)argc;
+	(void)argv;
+	while (1)
+	{
+		line = readline(PROMPT);
+		line = clean_input(line, envp);
+		printf("%s\n", line);
+	}
 }
