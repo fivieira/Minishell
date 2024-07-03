@@ -88,6 +88,7 @@ t_cmd	*redir_cmd(t_cmd *cmd, char *file, int mode, int fd);
 
 char	get_token(char **ps, char **t);
 char	*clean_input(char *cmd, char **envp);
+t_list  *organize_input(char *cmd, char **envp);
 
 // echo.c
 void	echo(char **msg);

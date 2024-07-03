@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/01 14:47:53 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/03 12:24:34 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/03 14:49:40 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,16 +59,13 @@ int	get_quoted(char **cmd, char **token, char c, char **envp)
 			start = *cmd;
 		}
 		else if (**cmd == '\0')
-			return (-1); //TODO: SYNTAX ERROR: QUOTE NOT CLOSED
+			return (ft_printf("SYNTAX ERROR\n"), -1); //TODO: SYNTAX ERROR: QUOTE NOT CLOSED
 		else
 		{
 			count++;
 			*cmd += 1;
 		}
 	}
-	// TODO: CANNOT USE 'COUNT' HERE: AFTER EXPAND, COUNT IS MUCH BIGGER
-	// THAN NECESSARY AND CATCHES ANY CHARS AFTER THE END OF THE ENV VAR
-	// SO IT PRINTS THEM WHEN IT SHOULDNT
 	if (count)
 	{
 		tmp = (char *)ft_calloc(count + 1, sizeof(char));
@@ -93,6 +90,38 @@ char	*str_cappend(char* str, char c)
 	return (out);
 }
 
+t_list	*organize_input(char *cmd, char **envp)
+{
+	t_list	*out;
+	char	*token;
+
+	out = NULL;
+	token = ft_strdup("");
+	while (*cmd)
+	{
+		if (*cmd == '\'')
+			get_quoted(&cmd, &token, '\'', envp);
+		else if (*cmd == '\"')
+			get_quoted(&cmd, &token, '\"', envp);
+		else if (*cmd == ' ')
+		{
+			ft_lstadd_back(&out, ft_lstnew((void *)token));
+			token = ft_strdup("");
+			cmd += 1;
+			continue ;
+		}
+		else if (*cmd == '$')
+			ft_expand_env(&cmd, &token, envp);
+		else
+		{
+			token = str_cappend(token, *cmd);
+			(cmd) += 1;
+		}
+	}
+	ft_lstadd_back(&out, ft_lstnew((void *)token));
+	return (out);
+}
+/*
 char    *clean_input(char *cmd, char **envp)
 {
         char    *out;
@@ -156,4 +185,4 @@ char    *clean_input(char *cmd, char **envp)
 	out = ft_strjoin(out, token); //TODO; MAYBE I CAN BUILD THIS WITH LISTS INSTEAD??
 	
 	return (out); //TODO: FIX LEAKS
-}
+}*/
