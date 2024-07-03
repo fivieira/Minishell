@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/01 14:47:53 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/02 21:18:23 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/03 12:24:34 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,12 @@ int	ft_expand_env(char **cmd, char **token, char **envp)
 	value = ft_getenv(ft_strndup(*cmd, count), envp);
 	if (!value)
 	{
+		(*cmd) += count;
 		return (0);
 	}
 	*token = ft_strjoin(*token, value);
 	(*cmd) += count;
-	return (ft_strlen(value));
+	return (count);
 }
 
 int	get_quoted(char **cmd, char **token, char c, char **envp)
@@ -53,7 +54,8 @@ int	get_quoted(char **cmd, char **token, char c, char **envp)
 			tmp = (char *)ft_calloc(count + 1, sizeof(char));
 			ft_strlcpy(tmp, start, count + 1);
 			*token = ft_strjoin(*token, tmp);
-			count += ft_expand_env(cmd, token, envp);
+			count = 0;
+			ft_expand_env(cmd, token, envp);
 			start = *cmd;
 		}
 		else if (**cmd == '\0')
@@ -67,11 +69,13 @@ int	get_quoted(char **cmd, char **token, char c, char **envp)
 	// TODO: CANNOT USE 'COUNT' HERE: AFTER EXPAND, COUNT IS MUCH BIGGER
 	// THAN NECESSARY AND CATCHES ANY CHARS AFTER THE END OF THE ENV VAR
 	// SO IT PRINTS THEM WHEN IT SHOULDNT
-	tmp = (char *)ft_calloc(count + 1, sizeof(char));
-	ft_strlcpy(tmp, start, count + 1);
-	ft_printf("%s\n", tmp);
-	*token = ft_strjoin(*token, tmp);
-	free(tmp);
+	if (count)
+	{
+		tmp = (char *)ft_calloc(count + 1, sizeof(char));
+		ft_strlcpy(tmp, start, count + 1);
+		*token = ft_strjoin(*token, tmp);
+		free(tmp);
+	}
 	*cmd += 1;
 
 	return (count);
@@ -147,11 +151,9 @@ char    *clean_input(char *cmd, char **envp)
 		}
 		set_flag(&flags, F_SPACE, false);
         }
-	if (count)
-	{
-		out = ft_strjoin(out, ft_itoa(count));
-		out = str_cappend(out, '\"');
-		out = ft_strjoin(out, token); //TODO; MAYBE I CAN BUILD THIS WITH LISTS INSTEAD??
-	}
+	out = ft_strjoin(out, ft_itoa(count));
+	out = str_cappend(out, '\"');
+	out = ft_strjoin(out, token); //TODO; MAYBE I CAN BUILD THIS WITH LISTS INSTEAD??
+	
 	return (out); //TODO: FIX LEAKS
 }
