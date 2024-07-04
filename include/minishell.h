@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/02 15:19:51 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/04 19:55:06 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,17 @@
 # define F_SPACE 3
 
 // Types of nodes
-# define EXEC 1
-# define REDIR 2
-# define PIPE 3
+# define EXEC 0
+# define REDIR 1
+# define PIPE 2
+
+//Token struct
+typedef struct	s_token
+{
+	char			type;
+	char		*content;
+	struct s_token	*next;
+}	t_token;
 
 //General struct that can be typecasted into any node type
 typedef struct	s_cmd
@@ -81,6 +89,11 @@ typedef struct s_localenv
 int	is_fon(int flags, int f);
 void	set_flag(int *flags, int f, bool set);
 
+// tokenlst_helpers.c
+t_token *ft_tokennew(char type, char *content);
+t_token *ft_tokenlast(t_token *token);
+void    ft_tokenadd_back(t_token **token, t_token *new);
+
 // constructors.c
 t_cmd	*exec_cmd(void);
 t_cmd	*pipe_cmd(t_cmd *left, t_cmd *right);
@@ -89,6 +102,7 @@ t_cmd	*redir_cmd(t_cmd *cmd, char *file, int mode, int fd);
 char	get_token(char **ps, char **t);
 char	*clean_input(char *cmd, char **envp);
 t_list  *organize_input(char *cmd, char **envp);
+t_token	*tokenizer(char *cmd, char **envp);
 
 // echo.c
 void	echo(char **msg);

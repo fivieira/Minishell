@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/03 14:34:43 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/04 19:54:41 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,17 +118,17 @@ int	main(int argc, char **argv, char **envp)
 int	main(int argc, char **argv, char **envp)
 {
 	char	*line;
-	t_list	*organized;
+	t_token	*organized;
 
 	(void)argc;
 	(void)argv;
 	while (1)
 	{
 		line = readline(PROMPT);
-		organized = organize_input(line, envp);
+		organized = tokenizer(line, envp);
 		while (organized)
 		{
-			printf("%s\n", (char *)organized->content);
+			printf("Type: %c, token:%s\n", organized->type, organized->content);
 			organized = organized->next;
 		}
 	}
