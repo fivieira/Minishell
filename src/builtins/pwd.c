@@ -15,13 +15,16 @@
 void	pwd(t_localenv *env)
 {
 	char	path[PATH_MAX];
+	char	*out;
 
 	if(getcwd(path, PATH_MAX))
 	{
 		ft_putendl_fd(path, 1);
 		return ; // tem que se fazer secalhar a saida com os sinais
 	}
-	ft_putendl_fd(ft_getenv("PWD", env->content), 1);
+	if (ft_getenv("PWD", &out, env->content) != 0)
+		return ; // getenv returns 
+	ft_putendl_fd(out, 1);
 	return ; // tem que se fazer secalhar a saida com os sinais
 }
 
