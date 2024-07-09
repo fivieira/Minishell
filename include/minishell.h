@@ -19,6 +19,7 @@
 # include <errno.h> // for error handeling
 # include <sys/wait.h> // for waiting for child processes
 # include "../libft/libft.h"
+# include "./tree_builder.h"
 # include <stdbool.h>
 # include <signal.h>
 # include <fcntl.h>
@@ -43,14 +44,6 @@
 # define EXEC 0
 # define REDIR 1
 # define PIPE 2
-
-//Token struct
-typedef struct	s_token
-{
-	char			type;
-	char		*content;
-	struct s_token	*next;
-}	t_token;
 
 //General struct that can be typecasted into any node type
 typedef struct	s_cmd
@@ -115,7 +108,7 @@ int	update_token(char **token, char *start, int size);
 int	get_quoted(char **cmd, char **token, char c, char **envp);
 // Appends to 'token' the quoted string pointed by 'cmd' which starts with quote type 'c'.
 // Returns 0 if successful, 1 if there is an error. If error comes from malloc, 'token' becomes NULL.
-int	parse_spaces(char **token, t_token **tokenlst, char *type, char **cmd);
+int	parse_spaces(t_tokenizer_data *td);
 //Parses space present in cmd. Returns 0 on Success, 1 on Error.
 t_token	*tokenizer(char *cmd, char **envp);
 
