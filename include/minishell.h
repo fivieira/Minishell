@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/09 20:12:19 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/10 15:50:20 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,8 @@
 
 # define PROMPT "THE FUCK DO YOU WANT?: "
 # define LAUNCH_ERROR "Did you actually give arguments to launch a shell?\nWhat are you, some kind of idiot?\n"
-# define FORK_ERROR "This fork mf decided to be a little bitch."
+# define FORK_ERROR "This fork mf decided to be a little bitch\n."
+# define SYNTAX_ERROR "LMAOO YOU CANT EVEN WRITE PROPERLY GO LEARN SOME BASIC SYNTAX YOU DIPSHIT\n"
 
 // characher sets for token delimitation
 # define WHITESPACE " \t\r\n\v"
@@ -105,7 +106,7 @@ int	ft_expand_env(char **cmd, char **token, char **envp);
 int	update_token(char **token, char *start, int size);
 // Takes an existing 'token' and appends to it 'size' bytes of a strig pointed by 'start'.
 // Returns 0 if successful. In case of error, 'token' is freed and set to NULL, and 1 is returned.
-int	get_quoted(char **cmd, char **token, char c, char **envp);
+int	get_quoted(char **cmd, char **token, char **envp);
 // Appends to 'token' the quoted string pointed by 'cmd' which starts with quote type 'c'.
 // Returns 0 if successful, 1 if there is an error. If error comes from malloc, 'token' becomes NULL.
 int	parse_spaces(t_tokenizer_data *td);

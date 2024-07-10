@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/04 19:54:41 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/10 15:45:48 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,9 @@ int	main(int argc, char **argv, char **envp)
 	char	*line;
 	t_token	*organized;
 
-	(void)argc;
+
+	if (argc != 1)
+                return (ft_putstr_fd(LAUNCH_ERROR, 2), 0);
 	(void)argv;
 	while (1)
 	{

@@ -6,11 +6,22 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/01 14:47:53 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/09 23:07:59 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/10 17:31:17 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+
+int	ft_token_createadd(t_token **tokenlst, char type, char *tokenstr)
+{
+	t_token	*new;
+
+	new = ft_tokennew(type, tokenstr);
+	if (!new)
+		return (1);
+	ft_tokenadd_back(tokenlst, new);
+	return (0);
+}
 
 int	ft_expand_env(char **cmd, char **token, char **envp)
 {
@@ -46,10 +57,12 @@ int	update_token(char **token, char *start, int len)
 	return (0);
 }
 
-int	get_quoted(char **cmd, char **token, char c, char **envp)
+int	get_quoted(char **cmd, char **token, char **envp)
 {
 	char	*start;
+	char	c;
 
+	c = **cmd;
 	*cmd += 1;
 	start = *cmd;
 	while (**cmd != c)
@@ -57,12 +70,12 @@ int	get_quoted(char **cmd, char **token, char c, char **envp)
 		if (c == '\"' && **cmd == '$')
 		{
 			if (update_token(token, start, *cmd - start) != 0
-					|| ft_expand_env(cmd, token, envp) != 0)
+				|| ft_expand_env(cmd, token, envp) != 0)
 				return (ft_printf("MALLOC ERROR\n"), 1);
 			start = *cmd;
 		}
 		else if (**cmd == '\0')
-			return (ft_printf("SYNTAX ERROR\n"), 1);
+			return (ft_printf(SYNTAX_ERROR), 1);
 		else
 			*cmd += 1;
 	}
@@ -89,23 +102,11 @@ int	parse_spaces(t_tokenizer_data *td)
 	}
 	td->cmd += 1;
 	return (0);
-}	
+}
 
-int	parse_redirs_pipes(t_tokenizer_data *td)
+void	parse_redirs(t_tokenizer_data *td)
 {
-	if (td->type != 'a')
-		return (ft_printf("SYNTAX ERROR\n"), 1);
-	if (*td->tokenstr)
-	{
-		ft_tokenadd_back(&td->tokenlst, ft_tokennew(td->type, td->tokenstr));
-		td->tokenstr = ft_strdup("");
-	}
-	if (*td->cmd == '|')
-	{
-		ft_tokenadd_back(&td->tokenlst, ft_tokennew('|', NULL));
-		td->cmd += 1;
-	}
-	else if (*td->cmd == '<')
+	if (*td->cmd == '<')
 	{
 		td->cmd += 1;
 		if (*td->cmd == '<')
@@ -127,6 +128,29 @@ int	parse_redirs_pipes(t_tokenizer_data *td)
 		else
 			td->type = '>';
 	}
+}
+
+int	parse_redirs_pipes(t_tokenizer_data *td)
+{
+	if (*td->tokenstr)
+	{
+		if (ft_token_createadd(&td->tokenlst, td->type, td->tokenstr) != 0)
+			return (1); //TODO: Deal with error
+		td->type = 'a';
+		td->tokenstr = ft_strdup("");
+		if (!td->tokenstr)
+			return (1); //TODO: Deal with error
+	}
+	if (td->type != 'a')
+		return (ft_printf(SYNTAX_ERROR), 1);
+	if (*td->cmd == '|')
+	{
+		if (ft_token_createadd(&td->tokenlst, '|', NULL) != 0)
+			return (1); //TODO: Deal with error
+		td->cmd += 1;
+	}
+	else
+		parse_redirs(td);
 	while (*td->cmd == ' ')
 		td->cmd += 1;
 	return (0);
@@ -140,18 +164,27 @@ static void	init_data(t_tokenizer_data *td, char *cmd)
 	td->tokenstr = ft_strdup("");
 }
 
+static int	finish_tokenizer(t_tokenizer_data *td)
+{
+	if (*td->tokenstr)
+	{
+		if (ft_token_createadd(&td->tokenlst, td->type, td->tokenstr) != 0)
+			return (1);
+	}
+	ft_printf("%c, %s\n", td->type, td->tokenstr);
+	return (0);
+}
+
 t_token	*tokenizer(char *cmd, char **envp)
 {
 	t_tokenizer_data	td;
-	int			status;
+	int					status;
 
 	init_data(&td, cmd);
 	while (*td.cmd)
 	{
-		if (*td.cmd == '\'')
-			status = get_quoted(&td.cmd, &td.tokenstr, '\'', envp);
-		else if (*td.cmd == '\"')
-			status = get_quoted(&td.cmd, &td.tokenstr, '\"', envp);
+		if (*td.cmd == '\'' || *td.cmd == '\"')
+			status = get_quoted(&td.cmd, &td.tokenstr, envp);
 		else if (*td.cmd == '$')
 			status = ft_expand_env(&td.cmd, &td.tokenstr, envp);
 		else if (ft_strchr("><|", *td.cmd))
@@ -166,7 +199,7 @@ t_token	*tokenizer(char *cmd, char **envp)
 		if (status != 0)
 			return (NULL); //TODO: Deal with error
 	}
-	if (*td.tokenstr)
-		ft_tokenadd_back(&td.tokenlst, ft_tokennew(td.type, td.tokenstr));
+	if (finish_tokenizer(&td) != 0)
+		return (NULL); //TODO: Deal with error
 	return (td.tokenlst);
 }
