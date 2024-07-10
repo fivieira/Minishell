@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/01 14:47:53 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/10 17:31:17 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/10 19:53:12 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,11 +32,18 @@ int	ft_expand_env(char **cmd, char **token, char **envp)
 	*cmd += 1;
 	while (ft_isalnum((*cmd)[count]) || (*cmd)[count] == '_')
 		count++;
+	if (!count)
+		return (update_token(token, (*cmd) - 1, 1));
 	if (ft_getenv(ft_strndup(*cmd, count), &value, envp) != 0)
 		return (free(token), 1);
 	(*cmd) += count;
 	if (!value)
 		return (0);
+	if (!(*token))
+	{
+		*token = value;
+		return (0);
+	}
 	*token = ft_strjoin_free(*token, value);
 	if (*token == NULL)
 		return (1);
@@ -51,9 +58,14 @@ int	update_token(char **token, char *start, int len)
 	if (!tmp)
 		return (1);
 	ft_strlcpy(tmp, start, len + 1);
-	*token = ft_strjoin_free(*token, tmp);
 	if (!(*token))
-		return (1);
+		*token = tmp;
+	else
+	{
+		*token = ft_strjoin_free(*token, tmp);
+		if (!(*token))
+			return (1);
+	}
 	return (0);
 }
 
@@ -89,16 +101,14 @@ int	parse_spaces(t_tokenizer_data *td)
 {
 	t_token	*new;
 
-	if (*td->tokenstr)
+	if (td->tokenstr)
 	{
 		new = ft_tokennew(td->type, td->tokenstr);
 		if (!new)
 			return (1);
 		ft_tokenadd_back(&td->tokenlst, new);
 		td->type = 'a';
-		td->tokenstr = ft_strdup("");
-		if (!td->tokenstr)
-			return (1);
+		td->tokenstr = NULL;
 	}
 	td->cmd += 1;
 	return (0);
@@ -132,14 +142,12 @@ void	parse_redirs(t_tokenizer_data *td)
 
 int	parse_redirs_pipes(t_tokenizer_data *td)
 {
-	if (*td->tokenstr)
+	if (td->tokenstr)
 	{
 		if (ft_token_createadd(&td->tokenlst, td->type, td->tokenstr) != 0)
 			return (1); //TODO: Deal with error
 		td->type = 'a';
-		td->tokenstr = ft_strdup("");
-		if (!td->tokenstr)
-			return (1); //TODO: Deal with error
+		td->tokenstr = NULL;
 	}
 	if (td->type != 'a')
 		return (ft_printf(SYNTAX_ERROR), 1);
@@ -161,17 +169,20 @@ static void	init_data(t_tokenizer_data *td, char *cmd)
 	td->cmd = cmd;
 	td->tokenlst = NULL;
 	td->type = 'a';
-	td->tokenstr = ft_strdup("");
+	td->tokenstr = NULL;
 }
 
 static int	finish_tokenizer(t_tokenizer_data *td)
 {
-	if (*td->tokenstr)
+	if (ft_strchr("<>+-", td->type) && !td->tokenstr)
+		return (ft_printf(SYNTAX_ERROR), 1);
+	if (td->tokenstr)
 	{
 		if (ft_token_createadd(&td->tokenlst, td->type, td->tokenstr) != 0)
 			return (1);
 	}
-	ft_printf("%c, %s\n", td->type, td->tokenstr);
+	if (ft_tokenlast(td->tokenlst) && ft_tokenlast(td->tokenlst)->type == '|')
+		return (ft_printf(SYNTAX_ERROR), 1);
 	return (0);
 }
 
