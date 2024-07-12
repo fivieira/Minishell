@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/04 19:55:06 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/12 10:49:46 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,7 @@ typedef struct	s_pipe
 typedef struct s_localenv
 {
 	char **content;
+	char **sort;
 }	t_localenv;
 
 // helpers.c
@@ -108,6 +109,10 @@ t_token	*tokenizer(char *cmd, char **envp);
 void	echo(char **msg);
 bool	find_n(char *str);
 
+// export.c
 char	*ft_getenv(const char *name, char **envp);
+bool	isvar_valid(const char *name);
+int	find_variable_index_recursive(const char *name, char **env, int i);
+
 
 #endif
