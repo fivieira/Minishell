@@ -6,7 +6,7 @@
 #    By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/21 15:06:49 by ndo-vale          #+#    #+#              #
-#    Updated: 2024/07/04 21:15:13 by ndo-vale         ###   ########.fr        #
+#    Updated: 2024/07/11 15:58:16 by fivieira         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,8 @@ SRCS		= $(addprefix $(SRC_DIR), main.c get_token.c constructors.c \
 					helpers.c tokenizer.c tokenlst_helpers.c \
 					builtins/echo.c \
 					builtins/pwd.c \
-					builtins/export/ft_getenv.c)
+					builtins/export/ft_getenv.c \
+					builtins/env.c)
 					
 #				continue to implement			
 
