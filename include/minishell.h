@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/10 15:50:20 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/15 14:39:43 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ typedef struct	s_exec
 {
 	int	type;
 	t_list	*argv;
+	char	**envp;
 }	t_exec;
 
 typedef struct	s_redir
@@ -89,7 +90,7 @@ t_token *ft_tokenlast(t_token *token);
 void    ft_tokenadd_back(t_token **token, t_token *new);
 
 // constructors.c
-t_cmd	*exec_cmd(void);
+t_cmd	*exec_cmd(char **envp);
 t_cmd	*pipe_cmd(t_cmd *left, t_cmd *right);
 t_cmd	*redir_cmd(t_cmd *cmd, char *file, int mode, int fd);
 
@@ -112,6 +113,15 @@ int	get_quoted(char **cmd, char **token, char **envp);
 int	parse_spaces(t_tokenizer_data *td);
 //Parses space present in cmd. Returns 0 on Success, 1 on Error.
 t_token	*tokenizer(char *cmd, char **envp);
+
+//TREE_BUILDER.C
+t_cmd   *tree_builder(t_token *tokenlst, char **envp);
+
+//TREE_EXECUTER.C
+void	run_cmd(t_cmd *cmd);
+
+//command_helpers.c
+char	*validate_cmd(char *cmd, char **env);
 
 // echo.c
 void	echo(char **msg);

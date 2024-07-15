@@ -6,12 +6,14 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/10 18:08:38 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/15 16:56:48 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
-
+//TODO: The below code is now present in tree_builder.c
+//Check it is working and delete this
+/*
 int	peek(char **ps, char *chars)
 {
 	char	*s;
@@ -82,7 +84,13 @@ void	parse_line(char *line)
 	ps = line;
 	tree = parse_pipe(&ps);
 }
+*/
 
+
+
+//----------------------------------------//
+//THE BELOW CODE IS THE ORIGINAL MAIN. UNCOMMENT THIS WHEN NO MORE NEED FOR TEST MAIN
+//----------------------------------------//
 /*
 int	main(int argc, char **argv, char **envp)
 {
@@ -128,10 +136,14 @@ int	main(int argc, char **argv, char **envp)
 	{
 		line = readline(PROMPT);
 		organized = tokenizer(line, envp);
-		while (organized)
+		if (!organized)
 		{
-			printf("Type: %c, token:%s\n", organized->type, organized->content);
-			organized = organized->next;
+			free(organized);
+			continue ;
 		}
+		t_cmd	*tree = tree_builder(organized, envp);
+		if (fork() == 0)
+			run_cmd(tree);
+		wait(0);
 	}
 }
