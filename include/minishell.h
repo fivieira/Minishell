@@ -78,6 +78,7 @@ typedef struct	s_pipe
 typedef struct s_localenv
 {
 	char **content;
+	char **sort;
 }	t_localenv;
 
 // helpers.c
@@ -127,9 +128,12 @@ char	*validate_cmd(char *cmd, char **env);
 void	echo(char **msg);
 bool	find_n(char *str);
 
+// export.c
 int	ft_getenv(const char *name, char **value, char **envp);
 // Searches for the envvar 'name' in 'envp' and saves its value in 'value'.
 // Returns 1 if any error occured, 0 otherwise.
 // 'value' is set to NULL in case of error or if 'name' was not found in 'envp'.
+bool	isvar_valid(const char *name);
+int	find_variable_index_recursive(const char *name, char **env, int i);
 
 #endif

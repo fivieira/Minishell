@@ -23,7 +23,8 @@ SRCS		= $(addprefix $(SRC_DIR), main.c constructors.c \
 					tree_builder.c tree_executer.c command_helpers.c \
 					builtins/echo.c \
 					builtins/pwd.c \
-					builtins/export/ft_getenv.c)
+					builtins/export/ft_getenv.c \
+					builtins/env.c)
 					
 #				continue to implement			
 
