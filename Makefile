@@ -6,7 +6,7 @@
 #    By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/21 15:06:49 by ndo-vale          #+#    #+#              #
-#    Updated: 2024/07/11 15:58:16 by fivieira         ###   ########.fr        #
+#    Updated: 2024/07/15 14:38:40 by ndo-vale         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,8 +18,9 @@ RM	= rm -rf
 
 SRC_DIR		= src/
 OBJ_DIR		= obj/
-SRCS		= $(addprefix $(SRC_DIR), main.c get_token.c constructors.c \
+SRCS		= $(addprefix $(SRC_DIR), main.c constructors.c \
 					helpers.c tokenizer.c tokenlst_helpers.c \
+					tree_builder.c tree_executer.c command_helpers.c \
 					builtins/echo.c \
 					builtins/pwd.c \
 					builtins/export/ft_getenv.c \

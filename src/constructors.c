@@ -6,13 +6,13 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/25 14:29:55 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/01 10:57:45 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/15 14:37:57 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-t_cmd	*exec_cmd(void)
+t_cmd	*exec_cmd(char **envp)
 {
 	t_exec	*exec_node;
 
@@ -20,6 +20,7 @@ t_cmd	*exec_cmd(void)
 	if (!exec_node)
 		return (NULL);
 	exec_node->type = EXEC;
+	exec_node->envp = envp;
 	return ((t_cmd *)exec_node);
 }
 

@@ -6,20 +6,21 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/01 14:47:53 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/04 22:23:06 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/10 19:53:12 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-char	*ft_strjoin_free(char *s1, char *s2)
+int	ft_token_createadd(t_token **tokenlst, char type, char *tokenstr)
 {
-	char	*out;
+	t_token	*new;
 
-	out = ft_strjoin(s1, s2);
-	free(s1);
-	free(s2);
-	return (out);
+	new = ft_tokennew(type, tokenstr);
+	if (!new)
+		return (1);
+	ft_tokenadd_back(tokenlst, new);
+	return (0);
 }
 
 int	ft_expand_env(char **cmd, char **token, char **envp)
@@ -31,142 +32,185 @@ int	ft_expand_env(char **cmd, char **token, char **envp)
 	*cmd += 1;
 	while (ft_isalnum((*cmd)[count]) || (*cmd)[count] == '_')
 		count++;
-	value = ft_getenv(ft_strndup(*cmd, count), envp);
+	if (!count)
+		return (update_token(token, (*cmd) - 1, 1));
+	if (ft_getenv(ft_strndup(*cmd, count), &value, envp) != 0)
+		return (free(token), 1);
+	(*cmd) += count;
 	if (!value)
+		return (0);
+	if (!(*token))
 	{
-		(*cmd) += count;
+		*token = value;
 		return (0);
 	}
 	*token = ft_strjoin_free(*token, value);
-	(*cmd) += count;
-	return (count);
+	if (*token == NULL)
+		return (1);
+	return (0);
 }
 
-char	*update_token(char *token, char *start, int size)
+int	update_token(char **token, char *start, int len)
 {
 	char	*tmp;
 
-	tmp = (char *)ft_calloc(size, sizeof(char));
-	ft_strlcpy(tmp, start, size);
-	return (ft_strjoin_free(token, tmp));
+	tmp = (char *)ft_calloc(len + 1, sizeof(char));
+	if (!tmp)
+		return (1);
+	ft_strlcpy(tmp, start, len + 1);
+	if (!(*token))
+		*token = tmp;
+	else
+	{
+		*token = ft_strjoin_free(*token, tmp);
+		if (!(*token))
+			return (1);
+	}
+	return (0);
 }
 
-int	get_quoted(char **cmd, char **token, char c, char **envp)
+int	get_quoted(char **cmd, char **token, char **envp)
 {
 	char	*start;
-	int		count;
+	char	c;
 
-	count = 0;
+	c = **cmd;
 	*cmd += 1;
 	start = *cmd;
 	while (**cmd != c)
 	{
 		if (c == '\"' && **cmd == '$')
 		{
-			*token = update_token(*token, start, count + 1);
-			count = 0;
-			ft_expand_env(cmd, token, envp);
+			if (update_token(token, start, *cmd - start) != 0
+				|| ft_expand_env(cmd, token, envp) != 0)
+				return (ft_printf("MALLOC ERROR\n"), 1);
 			start = *cmd;
 		}
 		else if (**cmd == '\0')
-			return (ft_printf("SYNTAX ERROR\n"), -1);
+			return (ft_printf(SYNTAX_ERROR), 1);
 		else
-		{
-			count++;
 			*cmd += 1;
-		}
 	}
-	if (count)
-		*token = update_token(*token, start, count + 1);
+	if (update_token(token, start, *cmd - start) != 0)
+		return (ft_printf("MALLOC ERROR\n"), 1);
 	*cmd += 1;
-	return (count);
+	return (0);
 }
 
-char	*str_cappend(char *str, char c)
+int	parse_spaces(t_tokenizer_data *td)
 {
-	char	*out;
-	int		len;
+	t_token	*new;
 
-	len = ft_strlen(str);
-	out = (char *)ft_calloc(len + 2, sizeof(char));
-	ft_strlcpy(out, str, len + 1);
-	out[len] = c;
-	free(str);
-	return (out);
+	if (td->tokenstr)
+	{
+		new = ft_tokennew(td->type, td->tokenstr);
+		if (!new)
+			return (1);
+		ft_tokenadd_back(&td->tokenlst, new);
+		td->type = 'a';
+		td->tokenstr = NULL;
+	}
+	td->cmd += 1;
+	return (0);
+}
+
+void	parse_redirs(t_tokenizer_data *td)
+{
+	if (*td->cmd == '<')
+	{
+		td->cmd += 1;
+		if (*td->cmd == '<')
+		{
+			td->type = '-';
+			td->cmd += 1;
+		}
+		else
+			td->type = '<';
+	}
+	else
+	{
+		td->cmd += 1;
+		if (*td->cmd == '>')
+		{
+			td->type = '+';
+			td->cmd += 1;
+		}
+		else
+			td->type = '>';
+	}
+}
+
+int	parse_redirs_pipes(t_tokenizer_data *td)
+{
+	if (td->tokenstr)
+	{
+		if (ft_token_createadd(&td->tokenlst, td->type, td->tokenstr) != 0)
+			return (1); //TODO: Deal with error
+		td->type = 'a';
+		td->tokenstr = NULL;
+	}
+	if (td->type != 'a')
+		return (ft_printf(SYNTAX_ERROR), 1);
+	if (*td->cmd == '|')
+	{
+		if (ft_token_createadd(&td->tokenlst, '|', NULL) != 0)
+			return (1); //TODO: Deal with error
+		td->cmd += 1;
+	}
+	else
+		parse_redirs(td);
+	while (*td->cmd == ' ')
+		td->cmd += 1;
+	return (0);
+}
+
+static void	init_data(t_tokenizer_data *td, char *cmd)
+{
+	td->cmd = cmd;
+	td->tokenlst = NULL;
+	td->type = 'a';
+	td->tokenstr = NULL;
+}
+
+static int	finish_tokenizer(t_tokenizer_data *td)
+{
+	if (ft_strchr("<>+-", td->type) && !td->tokenstr)
+		return (ft_printf(SYNTAX_ERROR), 1);
+	if (td->tokenstr)
+	{
+		if (ft_token_createadd(&td->tokenlst, td->type, td->tokenstr) != 0)
+			return (1);
+	}
+	if (ft_tokenlast(td->tokenlst) && ft_tokenlast(td->tokenlst)->type == '|')
+		return (ft_printf(SYNTAX_ERROR), 1);
+	return (0);
 }
 
 t_token	*tokenizer(char *cmd, char **envp)
 {
-	t_token	*out;
-	char	type;
-	char	*token;
+	t_tokenizer_data	td;
+	int					status;
 
-	out = NULL;
-	type = 'a';
-	token = ft_strdup("");
-	while (*cmd)
+	init_data(&td, cmd);
+	while (*td.cmd)
 	{
-		if (*cmd == '\'')
-			get_quoted(&cmd, &token, '\'', envp);
-		else if (*cmd == '\"')
-			get_quoted(&cmd, &token, '\"', envp);
-		else if (*cmd == '$')
-			ft_expand_env(&cmd, &token, envp);
-		else if (ft_strchr("><|", *cmd))
-		{
-			if (type != 'a')
-				return (ft_printf("SYNTAX ERROR\n"), NULL);
-			if (*token)
-			{
-				ft_tokenadd_back(&out, ft_tokennew(type, token));
-				token = ft_strdup("");
-			}
-			if (*cmd == '|')
-			{
-				ft_tokenadd_back(&out, ft_tokennew('|', NULL));
-				cmd += 1;
-			}
-			else if (*cmd == '<')
-			{
-				cmd += 1;
-				if (*cmd == '<')
-				{
-					type = '-';
-					cmd += 1;
-				}
-				else
-					type = '<';
-			}
-			else
-			{
-				cmd += 1;
-				if (*cmd == '>')
-				{
-					type = '+';
-					cmd += 1;
-				}
-				else
-					type = '>';
-			}
-			while (*cmd == ' ')
-				cmd += 1;
-		}
-		else if (*cmd == ' ')
-		{
-			if (*token)
-			{
-				ft_tokenadd_back(&out, ft_tokennew(type, token));
-				type = 'a';
-				token = ft_strdup("");
-			}
-			cmd += 1;
-		}
+		if (*td.cmd == '\'' || *td.cmd == '\"')
+			status = get_quoted(&td.cmd, &td.tokenstr, envp);
+		else if (*td.cmd == '$')
+			status = ft_expand_env(&td.cmd, &td.tokenstr, envp);
+		else if (ft_strchr("><|", *td.cmd))
+			status = parse_redirs_pipes(&td);
+		else if (*td.cmd == ' ')
+			status = parse_spaces(&td);
 		else
 		{
-			token = str_cappend(token, *cmd);
-			cmd += 1;
+			status = update_token(&td.tokenstr, td.cmd, 1);
+			td.cmd += 1;
 		}
+		if (status != 0)
+			return (NULL); //TODO: Deal with error
 	}
-	ft_tokenadd_back(&out, ft_tokennew(type, token));
-	return (out);
+	if (finish_tokenizer(&td) != 0)
+		return (NULL); //TODO: Deal with error
+	return (td.tokenlst);
 }
