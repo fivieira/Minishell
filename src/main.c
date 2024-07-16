@@ -6,87 +6,11 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/15 16:56:48 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/16 15:34:50 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
-//TODO: The below code is now present in tree_builder.c
-//Check it is working and delete this
-/*
-int	peek(char **ps, char *chars)
-{
-	char	*s;
-
-	s = *ps;
-	while (*s && ft_strchr(WHITESPACE, *s))
-		s++;
-	*ps = s;
-	return (*s && ft_strchr(chars, *s));
-}
-
-t_cmd	*parse_redir(t_cmd *cmd, char **ps)
-{
-	char	token;
-	char	*file_pos;
-
-	while (peek(ps, "<>"))
-	{
-		token = get_token(ps, NULL);
-		if (get_token(ps, &file_pos) != 'a')
-			return (NULL); //TODO: How to inform about syntax error??
-		if (token == '<')
-			cmd = redir_cmd(cmd, file_pos, O_RDONLY, 0);
-		else if (token == '-')
-			;//TODO: IMPLEMENT HEREDOC
-		else if (token == '>')
-			cmd = redir_cmd(cmd, file_pos, O_WRONLY|O_CREAT|O_TRUNC, 1);
-		else if (token == '+')
-			cmd = redir_cmd(cmd, file_pos, O_WRONLY|O_CREAT|O_APPEND, 1); 
-	}
-	return (cmd);
-}
-
-t_cmd	*parse_exec(char **ps)
-{
-	t_cmd	*full_cmd;
-	t_exec	*exec_node;
-	char	*arg_pos;
-
-	full_cmd = exec_cmd();
-	exec_node = (t_exec *)full_cmd;
-	full_cmd = parse_redir(full_cmd, ps);
-	while(!peek(ps, "|\0"))
-	{
-		if (get_token(ps, &arg_pos) != 'a')
-			return (NULL); //TODO: How to inform about syntax error??
-		ft_lstadd_back(&(exec_node->argv), ft_lstnew(arg_pos));
-		full_cmd = parse_redir(full_cmd, ps);
-	}
-	return (full_cmd);
-}
-
-t_cmd	*parse_pipe(char **ps)
-{
-	t_cmd	*node;
-
-	node = parse_exec(ps);
-	if (get_token(ps, NULL) == '|')
-		node = pipe_cmd(node, parse_pipe(ps));
-	return (node);
-}
-
-void	parse_line(char *line)
-{
-	t_cmd	*tree;
-	char	*ps;
-
-	ps = line;
-	tree = parse_pipe(&ps);
-}
-*/
-
-
 
 //----------------------------------------//
 //THE BELOW CODE IS THE ORIGINAL MAIN. UNCOMMENT THIS WHEN NO MORE NEED FOR TEST MAIN
@@ -123,6 +47,22 @@ int	main(int argc, char **argv, char **envp)
 	return (errno);
 }*/
 
+void	close_temps(void)
+{
+	DIR	*tempdir;
+	struct dirent	*file;
+	
+	tempdir = opendir(".tempfiles");
+	file = readdir(tempdir);
+	while (file)
+	{
+		if ((file->d_name)[0] != '.')
+			unlink(ft_strjoin(".tempfiles/", file->d_name));
+		file = readdir(tempdir);
+	}
+	closedir(tempdir);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	char	*line;
@@ -143,7 +83,11 @@ int	main(int argc, char **argv, char **envp)
 		}
 		t_cmd	*tree = tree_builder(organized, envp);
 		if (fork() == 0)
+		{
 			run_cmd(tree);
+			exit(0);
+		}
 		wait(0);
+		close_temps();
 	}
 }

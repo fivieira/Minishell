@@ -30,7 +30,6 @@ char	**create_args(t_list *argv)
 
 void	run_exec(t_exec *cmd)
 {
-	//TODO: Check if command exists?
 	char	*cmd_path;
 	char	**args;
 
