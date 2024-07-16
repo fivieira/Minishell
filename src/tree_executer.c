@@ -17,7 +17,7 @@ char	**create_args(t_list *argv)
 	char	**args;
 	int	i;
 
-	args = (char **)ft_calloc(ft_lstsize(argv), sizeof(char *));
+	args = (char **)ft_calloc(ft_lstsize(argv) + 1, sizeof(char *));
 	i = 0;
 	while (argv)
 	{

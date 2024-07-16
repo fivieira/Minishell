@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/01 14:47:53 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/10 19:53:12 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/16 22:57:02 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ int	ft_expand_env(char **cmd, char **token, char **envp)
 	if (!count)
 		return (update_token(token, (*cmd) - 1, 1));
 	if (ft_getenv(ft_strndup(*cmd, count), &value, envp) != 0)
-		return (free(token), 1);
+		return (errno);
 	(*cmd) += count;
 	if (!value)
 		return (0);
@@ -46,7 +46,7 @@ int	ft_expand_env(char **cmd, char **token, char **envp)
 	}
 	*token = ft_strjoin_free(*token, value);
 	if (*token == NULL)
-		return (1);
+		return (perror("malloc"), errno);
 	return (0);
 }
 
@@ -56,7 +56,7 @@ int	update_token(char **token, char *start, int len)
 
 	tmp = (char *)ft_calloc(len + 1, sizeof(char));
 	if (!tmp)
-		return (1);
+		return (perror("malloc"), 1);
 	ft_strlcpy(tmp, start, len + 1);
 	if (!(*token))
 		*token = tmp;
@@ -64,7 +64,7 @@ int	update_token(char **token, char *start, int len)
 	{
 		*token = ft_strjoin_free(*token, tmp);
 		if (!(*token))
-			return (1);
+			return (perror("malloc"), 1);
 	}
 	return (0);
 }
@@ -83,30 +83,26 @@ int	get_quoted(char **cmd, char **token, char **envp)
 		{
 			if (update_token(token, start, *cmd - start) != 0
 				|| ft_expand_env(cmd, token, envp) != 0)
-				return (ft_printf("MALLOC ERROR\n"), 1);
+				return (errno);
 			start = *cmd;
 		}
 		else if (**cmd == '\0')
-			return (ft_printf(SYNTAX_ERROR), 1);
+			return (ft_putstr_fd(SYNTAX_ERROR, 2), 2);
 		else
 			*cmd += 1;
 	}
 	if (update_token(token, start, *cmd - start) != 0)
-		return (ft_printf("MALLOC ERROR\n"), 1);
+		return (errno);
 	*cmd += 1;
 	return (0);
 }
 
 int	parse_spaces(t_tokenizer_data *td)
 {
-	t_token	*new;
-
 	if (td->tokenstr)
 	{
-		new = ft_tokennew(td->type, td->tokenstr);
-		if (!new)
-			return (1);
-		ft_tokenadd_back(&td->tokenlst, new);
+		if (ft_token_createadd(&td->tokenlst, td->type, td->tokenstr) != 0)
+			return (perror("malloc"), errno);
 		td->type = 'a';
 		td->tokenstr = NULL;
 	}
@@ -145,16 +141,16 @@ int	parse_redirs_pipes(t_tokenizer_data *td)
 	if (td->tokenstr)
 	{
 		if (ft_token_createadd(&td->tokenlst, td->type, td->tokenstr) != 0)
-			return (1); //TODO: Deal with error
+			return (perror("malloc"), errno);
 		td->type = 'a';
 		td->tokenstr = NULL;
 	}
 	if (td->type != 'a')
-		return (ft_printf(SYNTAX_ERROR), 1);
+		return (ft_putstr_fd(SYNTAX_ERROR, 2), 2);
 	if (*td->cmd == '|')
 	{
 		if (ft_token_createadd(&td->tokenlst, '|', NULL) != 0)
-			return (1); //TODO: Deal with error
+			return (perror("malloc"), errno);
 		td->cmd += 1;
 	}
 	else
@@ -175,42 +171,48 @@ static void	init_data(t_tokenizer_data *td, char *cmd)
 static int	finish_tokenizer(t_tokenizer_data *td)
 {
 	if (ft_strchr("<>+-", td->type) && !td->tokenstr)
-		return (ft_printf(SYNTAX_ERROR), 1);
+		return (ft_putstr_fd(SYNTAX_ERROR, 2), 2);
 	if (td->tokenstr)
 	{
 		if (ft_token_createadd(&td->tokenlst, td->type, td->tokenstr) != 0)
-			return (1);
+			return (perror("malloc"), errno);
 	}
 	if (ft_tokenlast(td->tokenlst) && ft_tokenlast(td->tokenlst)->type == '|')
-		return (ft_printf(SYNTAX_ERROR), 1);
+		return (ft_putstr_fd(SYNTAX_ERROR, 2), 2);
 	return (0);
+}
+
+void	free_line_exit(char *line, int status)
+{
+	free(line);
+	exit(status);
 }
 
 t_token	*tokenizer(char *cmd, char **envp)
 {
 	t_tokenizer_data	td;
-	int					status;
 
 	init_data(&td, cmd);
 	while (*td.cmd)
 	{
 		if (*td.cmd == '\'' || *td.cmd == '\"')
-			status = get_quoted(&td.cmd, &td.tokenstr, envp);
+			td.status = get_quoted(&td.cmd, &td.tokenstr, envp);
 		else if (*td.cmd == '$')
-			status = ft_expand_env(&td.cmd, &td.tokenstr, envp);
+			td.status = ft_expand_env(&td.cmd, &td.tokenstr, envp);
 		else if (ft_strchr("><|", *td.cmd))
-			status = parse_redirs_pipes(&td);
+			td.status = parse_redirs_pipes(&td);
 		else if (*td.cmd == ' ')
-			status = parse_spaces(&td);
+			td.status = parse_spaces(&td);
 		else
 		{
-			status = update_token(&td.tokenstr, td.cmd, 1);
+			td.status = update_token(&td.tokenstr, td.cmd, 1);
 			td.cmd += 1;
 		}
-		if (status != 0)
-			return (NULL); //TODO: Deal with error
+		if (td.status != 0)
+			free_line_exit(cmd, td.status);
 	}
-	if (finish_tokenizer(&td) != 0)
-		return (NULL); //TODO: Deal with error
+	td.status = finish_tokenizer(&td);
+	if (td.status != 0)
+		free_line_exit(cmd, td.status);
 	return (td.tokenlst);
 }

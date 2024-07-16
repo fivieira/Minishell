@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 20:34:22 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/15 10:37:39 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/16 22:57:34 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ typedef struct	s_tokenizer_data
 	t_token	*tokenlst;
 	char	type;
 	char	*tokenstr;
+	int	status;
 }	t_tokenizer_data;
 
 #endif
