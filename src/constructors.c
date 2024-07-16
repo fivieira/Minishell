@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/25 14:29:55 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/15 14:37:57 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/15 18:24:37 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,14 +40,25 @@ t_cmd	*pipe_cmd(t_cmd *left, t_cmd *right)
 t_cmd	*redir_cmd(t_cmd *cmd, char *file, int mode, int fd)
 {
 	t_redir	*redir_node;
+	t_redir *ptr;
 
 	redir_node = (t_redir *)ft_calloc(1, sizeof(t_redir));
 	if (!redir_node)
 		return (NULL);
 	redir_node->type = REDIR;
-	redir_node->cmd = cmd;
 	redir_node->file = file;
 	redir_node->mode = mode;
 	redir_node->fd = fd;
-	return ((t_cmd *)redir_node);
+
+	if (cmd->type == EXEC)
+	{
+		redir_node->cmd = cmd;
+		return ((t_cmd *)redir_node);
+	}
+	ptr = (t_redir *)cmd;
+	while (ptr->cmd->type == REDIR)
+		ptr = (t_redir *)ptr->cmd;
+	redir_node->cmd = ptr->cmd;
+	ptr->cmd = (t_cmd *)redir_node;
+	return (cmd);
 }

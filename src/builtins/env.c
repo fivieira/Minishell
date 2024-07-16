@@ -16,6 +16,6 @@ int command_env(t_localenv *local)
 {
 	if(local == NULL)
 		return (1); // tratar erro com os sinais
-	prtstr_env(local->content);
+	//prtstr_env(local->content);
 	return (0); // tratar erro com os sinais
 }

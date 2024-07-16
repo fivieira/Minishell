@@ -18,6 +18,7 @@
 # include <readline/history.h> // for rl history functionality
 # include <errno.h> // for error handeling
 # include <sys/wait.h> // for waiting for child processes
+#include <dirent.h> // for accessing directories
 # include "../libft/libft.h"
 # include "./tree_builder.h"
 # include <stdbool.h>
