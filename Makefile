@@ -6,7 +6,7 @@
 #    By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/21 15:06:49 by ndo-vale          #+#    #+#              #
-#    Updated: 2024/07/15 14:38:40 by ndo-vale         ###   ########.fr        #
+#    Updated: 2024/07/16 15:53:13 by ndo-vale         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,6 +44,10 @@ $(NAME): $(OBJS) $(LIBFT)
 	$(CC) $(CFLAGS) $(IFLAGS) -o $(NAME) $(OBJS) $(LIBFT)
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c
+	@mkdir -p obj
+	@mkdir -p obj/builtins
+	@mkdir -p obj/builtins/export
+	@mkdir -p .tempfiles
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
