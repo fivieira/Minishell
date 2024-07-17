@@ -6,21 +6,23 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/01 14:47:53 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/16 22:57:02 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/17 13:40:09 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-int	ft_token_createadd(t_token **tokenlst, char type, char *tokenstr)
+int	ft_safe_getenv(char *start, int len, char **value, char **envp)
 {
-	t_token	*new;
+	char	*key;
+	int	status;
 
-	new = ft_tokennew(type, tokenstr);
-	if (!new)
+	key = ft_strndup(start, len);
+	if (!key)
 		return (1);
-	ft_tokenadd_back(tokenlst, new);
-	return (0);
+	status = ft_getenv(key, value, envp);
+	free(key);
+	return (status);
 }
 
 int	ft_expand_env(char **cmd, char **token, char **envp)
@@ -34,7 +36,7 @@ int	ft_expand_env(char **cmd, char **token, char **envp)
 		count++;
 	if (!count)
 		return (update_token(token, (*cmd) - 1, 1));
-	if (ft_getenv(ft_strndup(*cmd, count), &value, envp) != 0)
+	if (ft_safe_getenv(*cmd, count, &value, envp) != 0)
 		return (errno);
 	(*cmd) += count;
 	if (!value)
@@ -182,12 +184,6 @@ static int	finish_tokenizer(t_tokenizer_data *td)
 	return (0);
 }
 
-void	free_line_exit(char *line, int status)
-{
-	free(line);
-	exit(status);
-}
-
 t_token	*tokenizer(char *cmd, char **envp)
 {
 	t_tokenizer_data	td;
@@ -209,10 +205,10 @@ t_token	*tokenizer(char *cmd, char **envp)
 			td.cmd += 1;
 		}
 		if (td.status != 0)
-			free_line_exit(cmd, td.status);
+			tokenizer_exit(cmd, &td);
 	}
 	td.status = finish_tokenizer(&td);
 	if (td.status != 0)
-		free_line_exit(cmd, td.status);
+		tokenizer_exit(cmd, &td);
 	return (td.tokenlst);
 }
