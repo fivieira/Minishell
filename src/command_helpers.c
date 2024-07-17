@@ -68,5 +68,5 @@ char	*validate_cmd(char *cmd, char **env)
 	}
 	free(path_str);
 	ft_free_matrix((void **)cmd_paths);
-	return ("INVALID");
+	return (ft_strdup("INVALID"));
 }

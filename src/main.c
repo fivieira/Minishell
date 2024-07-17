@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/16 21:55:49 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/17 15:35:36 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ int	main(int argc, char **argv, char **envp)
 	while (1)
 	{
 		line = readline(PROMPT);
+		if (!line)
+			continue ;
 		organized = tokenizer(line, envp);
 		if (!organized)
 		{
@@ -41,11 +43,13 @@ int	main(int argc, char **argv, char **envp)
 		if (cpid == -1)
 			return (perror("fork"), errno);
 		if (cpid == 0)
-		{
-			run_cmd(tree);
-			exit(0); // Why the fuck is this necessary?? run_cmd is not supposed to return
-		}
+			run_cmd(tree, tree);
 		wait(&cp_status);
+		//There are still a few frees to do here!!
+		/*free(((t_exec *)tree)->argv->content);
+		free(((t_exec *)tree)->argv);
+		free(tree);*/
+		ft_free_tree(tree);
 		free(line);
 		close_temps();
 

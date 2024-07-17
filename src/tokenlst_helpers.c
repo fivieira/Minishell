@@ -6,11 +6,25 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/04 19:05:25 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/04 19:29:32 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/17 10:42:26 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+
+void	ft_free_tokenlst(t_token *tokenlst, bool free_content)
+{
+	t_token	*tmp;
+	
+	while (tokenlst)
+	{
+		if (free_content)
+			free(tokenlst->content);
+		tmp = tokenlst;
+		tokenlst = tokenlst->next;
+		free(tmp);
+	}
+}
 
 t_token	*ft_tokennew(char type, char *content)
 {
@@ -40,4 +54,15 @@ void	ft_tokenadd_back(t_token **token, t_token *new)
 		*token = new;
 	else
 		ft_tokenlast(*token)->next = new;
+}
+
+int	ft_token_createadd(t_token **tokenlst, char type, char *tokenstr)
+{
+	t_token	*new;
+
+	new = ft_tokennew(type, tokenstr);
+	if (!new)
+		return (1);
+	ft_tokenadd_back(tokenlst, new);
+	return (0);
 }

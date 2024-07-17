@@ -111,7 +111,10 @@ t_cmd	*parse_pipe(t_token **ptr, char **envp)
 t_cmd	*tree_builder(t_token *tokenlst, char **envp)
 {
 	t_cmd	*tree;
+	t_token *ptr;
 
-	tree = parse_pipe(&tokenlst, envp);
+	ptr = tokenlst;
+	tree = parse_pipe(&ptr, envp);
+	ft_free_tokenlst(tokenlst, false);
 	return (tree);
 }

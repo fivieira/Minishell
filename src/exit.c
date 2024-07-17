@@ -1,26 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   helpers.c                                          :+:      :+:    :+:   */
+/*   exit.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/01 11:26:58 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/01 12:21:06 by ndo-vale         ###   ########.fr       */
+/*   Created: 2024/07/17 10:43:14 by ndo-vale          #+#    #+#             */
+/*   Updated: 2024/07/17 13:35:39 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-int	is_fon(int flags, int f)
+void	tokenizer_exit(char *line, t_tokenizer_data *td)
 {
-	return (flags & 1 << f);
-}
-
-void	set_flag(int *flags, int f, bool set)
-{
-	if (set)
-		*flags = *flags | 1 << f;
-	else
-		*flags = *flags & ~(1 << f);
+	free(line);
+	ft_free_tokenlst(td->tokenlst, true);
+	if (td->tokenstr)
+		free(td->tokenstr);
+	exit(td->status);
 }

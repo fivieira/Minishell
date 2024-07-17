@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/15 14:39:43 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/17 15:36:21 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,19 +86,23 @@ typedef struct s_localenv
 int	is_fon(int flags, int f);
 void	set_flag(int *flags, int f, bool set);
 
+// exit.c
+void	tokenizer_exit(char *line, t_tokenizer_data *td);
+
+// free_tree.c
+void	ft_free_tree(t_cmd *node);
+
 // tokenlst_helpers.c
 t_token *ft_tokennew(char type, char *content);
 t_token *ft_tokenlast(t_token *token);
 void    ft_tokenadd_back(t_token **token, t_token *new);
+int	ft_token_createadd(t_token **tokenlst, char type, char *tokenstr);
+void	ft_free_tokenlst(t_token *tokenlst, bool free_content);
 
 // constructors.c
 t_cmd	*exec_cmd(char **envp);
 t_cmd	*pipe_cmd(t_cmd *left, t_cmd *right);
 t_cmd	*redir_cmd(t_cmd *cmd, char *file, int mode, int fd);
-
-char	get_token(char **ps, char **t);
-//char	*clean_input(char *cmd, char **envp);
-//t_list  *organize_input(char *cmd, char **envp);
 
 //TOKENIZER.C
 int	ft_expand_env(char **cmd, char **token, char **envp);
@@ -120,7 +124,7 @@ t_token	*tokenizer(char *cmd, char **envp);
 t_cmd   *tree_builder(t_token *tokenlst, char **envp);
 
 //TREE_EXECUTER.C
-void	run_cmd(t_cmd *cmd);
+void	run_cmd(t_cmd *cmd, t_cmd *start);
 
 //command_helpers.c
 char	*validate_cmd(char *cmd, char **env);
