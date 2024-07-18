@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 11:32:32 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/06/06 11:32:37 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/18 17:55:17 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,8 @@ char	*validate_cmd(char *cmd, char **env)
 	char	**cmd_paths;
 	int		i;
 
+	if (!cmd)
+		return (NULL);
 	if (access(cmd, F_OK) == 0)
 		return (ft_strdup(cmd));
 	path_str = NULL;

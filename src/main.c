@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/18 17:32:30 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/18 21:36:35 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,15 @@ int	main(int argc, char **argv, char **envp)
 	{
 		line = readline(PROMPT);
 		if (!line)
-			continue ;
+		{
+			ft_putstr_fd("exit\n", 1);
+			exit(cp_status); //TODO: Exiting with Ctr+d is not currently giving right exit
+		}
+		//TODO: EXPAND MUST BE DONE BEFORE TOKENIZER BECAUSE QUOTE RULES STILL APPLY
+		// BUT SOMEHOW NOT BE INTERPRETED AS TOKENS??
+		// export VAR="intf abc |"
+		// pr$VAR executes command WITHOUT syntax error ('|' is treated as str and not token)
+		// pr"$VAR" does not execute, because command "printf abc |" does not exist
 		organized = tokenizer(line, envp);
 		if (!organized)
 		{
@@ -46,13 +54,9 @@ int	main(int argc, char **argv, char **envp)
 			return (perror("fork"), errno);
 		if (cpid == 0)
 			run_cmd(tree, tree);
-		wait(&cp_status);
-		//There are still a few frees to do here!!
-		/*free(((t_exec *)tree)->argv->content);
-		free(((t_exec *)tree)->argv);
-		free(tree);*/
 		ft_free_tree(tree);
-		free(line);
+                free(line);
+		wait(&cp_status); //TODO: Check if exit through signals is giving right exit
 		close_temps();
 
 		/*
