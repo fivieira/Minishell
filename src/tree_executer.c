@@ -15,7 +15,7 @@
 char	**create_args(t_list *argv)
 {
 	char	**args;
-	int	i;
+	int		i;
 
 	args = (char **)ft_calloc(ft_lstsize(argv) + 1, sizeof(char *));
 	i = 0;
@@ -25,7 +25,7 @@ char	**create_args(t_list *argv)
 		i++;
 		argv = argv->next;
 	}
-	return args;
+	return (args);
 }
 
 void	run_exec(t_exec *cmd, t_cmd *start)
@@ -70,7 +70,7 @@ void	run_pipe(t_pipe *cmd, t_cmd *start)
 	int	p[2];
 
 	if (pipe(p) < 0)
-		return ; //TODO: DEAL WITH PIPE ERROR.
+		return ;
 	if (fork() == 0)
 	{
 		dup2(p[1], 1);

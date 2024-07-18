@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/04 19:05:25 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/17 10:42:26 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/18 11:32:48 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 void	ft_free_tokenlst(t_token *tokenlst, bool free_content)
 {
 	t_token	*tmp;
-	
+
 	while (tokenlst)
 	{
 		if (free_content)
@@ -39,7 +39,7 @@ t_token	*ft_tokennew(char type, char *content)
 	return (token);
 }
 
-t_token *ft_tokenlast(t_token *token)
+t_token	*ft_tokenlast(t_token *token)
 {
 	if (!token)
 		return (NULL);

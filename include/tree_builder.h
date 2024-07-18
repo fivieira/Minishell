@@ -13,20 +13,20 @@
 #ifndef TREE_BUILDER_H
 # define TREE_BUILDER_H
 
-typedef struct	s_token
+typedef struct s_token
 {
 	char			type;
-	char		*content;
+	char			*content;
 	struct s_token	*next;
 }	t_token;
 
-typedef struct	s_tokenizer_data
+typedef struct s_tokenizer_data
 {
 	char	*cmd;
 	t_token	*tokenlst;
 	char	type;
 	char	*tokenstr;
-	int	status;
+	int		status;
 }	t_tokenizer_data;
 
 #endif
