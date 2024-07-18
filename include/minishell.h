@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/17 15:36:21 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/18 16:14:53 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,8 @@ typedef struct s_localenv
 	char	**content;
 	char	**sort;
 }	t_localenv;
+
+extern int g_signo;
 
 // helpers.c
 int		is_fon(int flags, int f);
