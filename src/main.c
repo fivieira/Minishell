@@ -6,11 +6,13 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/17 15:35:36 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/18 17:32:30 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+
+int g_signo = 0;
 
 void	close_temps(void);
 
