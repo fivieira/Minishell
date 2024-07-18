@@ -18,9 +18,11 @@ RM	= rm -rf
 
 SRC_DIR		= src/
 OBJ_DIR		= obj/
-SRCS		= $(addprefix $(SRC_DIR), main.c constructors.c free_tree.c \
-					exit.c tokenizer.c tokenlst_helpers.c \
-					tree_builder.c tree_executer.c command_helpers.c signals.c\
+
+SRCS		= $(addprefix $(SRC_DIR), main.c constructors.c free_tree.c exit.c \
+					tokenizer.c tokenlst_helpers.c 	tokenizer_helpers.c \
+					tree_builder.c tree_executer.c tree_helpers.c \
+					command_helpers.c signals.c \
 					builtins/echo.c \
 					builtins/pwd.c \
 					builtins/export/ft_getenv.c \
