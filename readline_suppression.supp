@@ -1037,4 +1037,53 @@
    fun:readline
    fun:main
 }
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   fun:xrealloc
+   obj:/usr/lib/x86_64-linux-gnu/libreadline.so.8.1
+   fun:rl_expand_prompt
+   fun:rl_set_prompt
+   fun:readline
+   fun:create_heredoc_file
+   fun:parse_redir
+   fun:parse_exec
+   fun:parse_pipe
+   fun:tree_builder
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:xmalloc
+   obj:/usr/lib/x86_64-linux-gnu/libreadline.so.8.1
+   fun:rl_expand_prompt
+   fun:rl_set_prompt
+   fun:readline
+   fun:create_heredoc_file
+   fun:parse_redir
+   fun:parse_exec
+   fun:parse_pipe
+   fun:tree_builder
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:xmalloc
+   fun:rl_set_prompt
+   fun:readline
+   fun:create_heredoc_file
+   fun:parse_redir
+   fun:parse_exec
+   fun:parse_pipe
+   fun:tree_builder
+   fun:main
+}
 

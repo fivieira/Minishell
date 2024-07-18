@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/10 21:04:21 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/18 14:31:40 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/18 21:37:14 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ char	*create_heredoc_file(char *eof_str)
 	char	*filename;
 	int		fd;
 
+	//TODO: Create fork, and free all memory in child, so SIGINT doesnt leak.
 	filename = ft_strjoin_free(ft_strdup(".tempfiles/tempheredoc"),
 			ft_itoa(get_next_rn()));
 	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -29,8 +30,10 @@ char	*create_heredoc_file(char *eof_str)
 		free(line);
 		line = readline(">");
 	}
+	free(eof_str);
 	free(line);
 	close(fd);
+	//handle_sigint_status();
 	return (filename);
 }
 
@@ -92,9 +95,6 @@ t_cmd	*tree_builder(t_token *tokenlst, char **envp)
 
 	ptr = tokenlst;
 	tree = parse_pipe(&ptr, envp);
-	//ft_free_tokenlst(tokenlst, true);
-	//exit(0);
 	ft_free_tokenlst(tokenlst, false);
-	//exit(0);
 	return (tree);
 }
