@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/18 18:17:15 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/18 22:04:05 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,7 @@ void	set_flag(int *flags, int f, bool set);
 
 // exit.c
 void	tokenizer_exit(char *line, t_tokenizer_data *td);
+int	exit_code(int code):
 
 // free_tree.c
 void	ft_free_tree(t_cmd *node);

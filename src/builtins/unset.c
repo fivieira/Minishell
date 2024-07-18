@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/12 10:42:32 by fivieira          #+#    #+#             */
-/*   Updated: 2024/07/18 12:51:30 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/18 22:19:01 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,10 @@ int	command_unset(char **comands, t_localenv *local)
 	int	i;
 
 	if (comands == NULL || local == NULL || local->content == NULL)
-		return (1); // tratar erro com os sinais
+	{
+		ft_putstr_fd(": Invalid command or local environment.\n", 2);
+		return (exit_code(EXIT_FAILURE));
+	}
 	if (comands[1] == NULL)
 		return (EXIT_SUCCESS);
 	if (!isvar_valid(comands[1]))
@@ -68,9 +71,9 @@ int	command_unset(char **comands, t_localenv *local)
 	while (comands[i] != NULL)
 	{
 		if (unset_variable(comands[i], local) != 0)
-			return (EXIT_FAILURE); // tratar com sinal
+			return (EXIT_FAILURE);
 		if (unset_variable2(comands[i], local) != 0)
-			return (EXIT_FAILURE); // tratar com sinal
+			return (EXIT_FAILURE);
 		i++;
 	}
 	return (EXIT_SUCCESS);
