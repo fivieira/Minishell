@@ -90,7 +90,7 @@ t_token	*tokenizer(char *cmd, char **envp)
 	{
 		if (*td.cmd == '\'' || *td.cmd == '\"')
 			td.status = get_quoted(&td.cmd, &td.tokenstr, envp);
-		else if (*td.cmd == '$')
+		else if (*td.cmd == '$' && td.type != '-')
 			td.status = ft_expand_env(&td.cmd, &td.tokenstr, envp);
 		else if (ft_strchr("><|", *td.cmd))
 			td.status = parse_redirs_pipes(&td);

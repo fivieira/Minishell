@@ -12,7 +12,32 @@
 
 #include "../include/minishell.h"
 
-char	*create_heredoc_file(char *eof_str)
+int	find_and_expand(char **line, char **envp)
+{
+	char	*final;
+	char	*ptr;
+	int	status;
+	
+	ptr = *line;
+	final = ft_strdup("");
+	while (*ptr)
+	{
+		if (*ptr == '$')
+			status = ft_expand_env(&ptr, &final, envp);
+		else
+		{
+			status = update_token(&final, ptr, 1);
+			ptr += 1;
+		}
+		if (status != 0)
+			return (free(final), free(line), errno);
+	}
+	free(line);
+	*line = final;
+	return (0);
+}
+
+char	*create_heredoc_file(char *eof_str, char **envp)
 {
 	char	*line;
 	char	*filename;
@@ -25,6 +50,8 @@ char	*create_heredoc_file(char *eof_str)
 	line = readline(">");
 	while (line && ft_strncmp(line, eof_str, ft_strlen(eof_str) + 1) != 0)
 	{
+		if (find_and_expand(&line, envp) != 0)
+			return (NULL);
 		write(fd, line, ft_strlen(line));
 		write(fd, "\n", 1);
 		free(line);
@@ -37,7 +64,7 @@ char	*create_heredoc_file(char *eof_str)
 	return (filename);
 }
 
-t_cmd	*parse_redir(t_cmd *cmd, t_token **ptr)
+t_cmd	*parse_redir(t_cmd *cmd, t_token **ptr, char **envp)
 {
 	char	c;
 	char	*heredoc_filename;
@@ -47,7 +74,7 @@ t_cmd	*parse_redir(t_cmd *cmd, t_token **ptr)
 		cmd = redir_cmd(cmd, (*ptr)->content, O_RDONLY, 0);
 	else if (c == '-')
 	{
-		heredoc_filename = create_heredoc_file((*ptr)->content);
+		heredoc_filename = create_heredoc_file((*ptr)->content, envp);
 		cmd = redir_cmd(cmd, heredoc_filename, O_RDONLY, 0);
 	}
 	else if (c == '>')
@@ -69,7 +96,7 @@ t_cmd	*parse_exec(t_token **ptr, char **envp)
 		if ((*ptr)->type == 'a')
 			ft_lstadd_back(&(exec_node->argv), ft_lstnew((*ptr)->content));
 		else
-			full_cmd = parse_redir(full_cmd, ptr);
+			full_cmd = parse_redir(full_cmd, ptr, envp);
 		*ptr = (*ptr)->next;
 	}
 	return (full_cmd);

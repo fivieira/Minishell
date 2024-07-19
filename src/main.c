@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/18 21:36:35 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/19 21:43:33 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,21 @@
 int g_signo = 0;
 
 void	close_temps(void);
+
+/*
+void	ft_heredoc(char *line)
+{
+	int	inquotes;
+
+	inquotes = 0;
+	while (*line)
+	{
+		if (!inquotes && *line == '<' && *(line + 1) == '<')
+		{
+			
+		}
+}*/
+
 
 int	main(int argc, char **argv, char **envp)
 {
@@ -29,19 +44,23 @@ int	main(int argc, char **argv, char **envp)
 		return (ft_putstr_fd(LAUNCH_ERROR, 2), 0);
 	(void)argv;
 	(void)envp;
+	cp_status = 0;
 	while (1)
 	{
 		line = readline(PROMPT);
-		if (!line)
+		if (!line)//Ctrl+D
 		{
 			ft_putstr_fd("exit\n", 1);
-			exit(cp_status); //TODO: Exiting with Ctr+d is not currently giving right exit
+			exit(WEXITSTATUS(cp_status));
 		}
-		//TODO: EXPAND MUST BE DONE BEFORE TOKENIZER BECAUSE QUOTE RULES STILL APPLY
-		// BUT SOMEHOW NOT BE INTERPRETED AS TOKENS??
-		// export VAR="intf abc |"
-		// pr$VAR executes command WITHOUT syntax error ('|' is treated as str and not token)
-		// pr"$VAR" does not execute, because command "printf abc |" does not exist
+//		ft_heredoc(line);
+
+
+
+
+
+
+
 		organized = tokenizer(line, envp);
 		if (!organized)
 		{
@@ -56,12 +75,13 @@ int	main(int argc, char **argv, char **envp)
 			run_cmd(tree, tree);
 		ft_free_tree(tree);
                 free(line);
-		wait(&cp_status); //TODO: Check if exit through signals is giving right exit
+		wait(&cp_status);
 		close_temps();
-
-		/*
 		if (WIFEXITED(cp_status)) //exited normally
+		{
 			errno = WEXITSTATUS(cp_status);
+			printf("%i\n", errno);
+		}
 		else
 		{
 			ft_printf("lol\n");// TODO: THIS ELSE HANDLES EXITING THROUGH SIGNALS
@@ -69,7 +89,7 @@ int	main(int argc, char **argv, char **envp)
 			 // Maybe all this has to run in a different process, and 
 			 // handle exiting in parent this way?
 			break ;
-		}*/
+		}
 	}
 	return (errno);
 }
