@@ -1,37 +1,43 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signals.c                                          :+:      :+:    :+:   */
+/*   signals_handlers.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/18 16:00:04 by fivieira          #+#    #+#             */
-/*   Updated: 2024/07/18 18:15:47 by fivieira         ###   ########.fr       */
+/*   Created: 2024/07/18 18:01:47 by fivieira          #+#    #+#             */
+/*   Updated: 2024/07/18 18:10:09 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-void	set_sig_function(void)
+void	update_status_sigint(int signo)
 {
-	signal(SIGINT, sigint_handler);
-	signal(SIGQUIT, SIG_IGN);
+	if(signo == SIGINT)
+		g_signo = 130;
 }
 
-void	set_sig_new(void)
+void	update_status_sigquit(int signo)
 {
-	signal(SIGINT, SIG_DFL);
-	signal(SIGQUIT, SIG_IGN);
+	if(signo == SIGQUIT)
+		g_signo = 131;
 }
 
-void	set_sig_default(void)
+void	sigint_handler(int signo)
 {
-	signal(SIGINT, SIG_DFL);
-	signal(SIGQUIT, SIG_DFL);
+	(void) signo;
+		rl_replace_line("", 0);
+		printf("\n");
+		rl_on_new_line();
+		rl_redisplay();
+		g_signo = 130;
 }
 
-void	handle_sigint_status(void)
+void	sigquit_handler(int signo)
 {
-	signal(SIGINT, update_status_sigint);
-	signal(SIGQUIT, update_status_sigint);
+	(void) signo;
+	write(STDIN_FILENO, "\n", 1);
+	g_signo = 131;
+	return ;
 }

@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/18 16:14:53 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/18 18:17:15 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,8 @@
 # define REDIR 1
 # define PIPE 2
 
+extern int g_signo;
+
 //General struct that can be typecasted into any node type
 typedef struct s_cmd
 {
@@ -81,8 +83,6 @@ typedef struct s_localenv
 	char	**content;
 	char	**sort;
 }	t_localenv;
-
-extern int g_signo;
 
 // helpers.c
 int		is_fon(int flags, int f);
@@ -162,5 +162,16 @@ int		ft_expand_env(char **cmd, char **token, char **envp);
 // Returns an error number otherwise.
 bool	isvar_valid(const char *name);
 int		find_variable_index_recursive(const char *name, char **env, int i);
+
+//signals
+void	sigint_handler(int signo);
+void	update_status_sigint(int signo);
+void	update_status_sigquit(int signo);
+void	sigint_handler(int signo);
+void	sigquit_handler(int signo);
+void	handle_sigint_status(void);
+void	set_sig_default(void);
+void	set_sig_new(void);
+void	set_sig_function(void);
 
 #endif
