@@ -31,9 +31,10 @@ void	parse_redirs(t_tokenizer_data *td)
 	{
 		td->cmd += 1;
 		if (*td->cmd == '<')
-		{
+		{	
 			td->type = '-';
 			td->cmd += 1;
+			
 		}
 		else
 			td->type = '<';
