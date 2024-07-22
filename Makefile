@@ -6,14 +6,15 @@
 #    By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/21 15:06:49 by ndo-vale          #+#    #+#              #
-#    Updated: 2024/07/22 23:30:21 by fivieira         ###   ########.fr        #
+#    Updated: 2024/07/22 23:53:52 by fivieira         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	= minishell
 CC	= cc
 CFLAGS	= -Wall -Werror -Wextra -g 
-IFLAGS	= -lreadline
+IFLAGS	= -I/usr/include/readline
+LDFLAGS	= -L/usr/lib -lreadline
 RM	= rm -rf
 
 SRC_DIR		= src/
@@ -43,14 +44,14 @@ $(LIBFT):
 	make -s -C $(LIBFT_DIR)
 
 $(NAME): $(OBJS) $(LIBFT)
-	$(CC) $(CFLAGS) $(IFLAGS) -o $(NAME) $(OBJS) $(LIBFT)
+	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) $(LDFLAGS) -o $(NAME)
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c
 	@mkdir -p obj
 	@mkdir -p obj/builtins
 	@mkdir -p obj/builtins/export
 	@mkdir -p .tempfiles
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
 clean:
 	make -s clean -C $(LIBFT_DIR)
