@@ -1,29 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pwd.c                                              :+:      :+:    :+:   */
+/*   exist_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/29 16:20:29 by fivieira          #+#    #+#             */
-/*   Updated: 2024/07/22 23:35:40 by fivieira         ###   ########.fr       */
+/*   Created: 2024/07/18 21:55:16 by fivieira          #+#    #+#             */
+/*   Updated: 2024/07/18 21:59:45 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/minishell.h"
+#include "../include/minishell.h"
 
-int	pwd(t_localenv *env)
+int	exit_code(int code)
 {
-	char	path[PATH_MAX];
-	char	*out;
-
-	if (getcwd(path, PATH_MAX))
+	if (code == 298)
 	{
-		ft_putendl_fd(path, 1);
-		return (exit_code(EXIT_SUCCESS));
+		g_signo = 42;
+		return (g_signo);
 	}
-	if (ft_getenv("PWD", &out, env->content) != 0)
-		return (ft_getenv("PWD", &out, env->content));// getenv returns 
-	ft_putendl_fd(out, 1);
-	return (exit_code(EXIT_SUCCESS));
+	if (code == 5120 || code == 13)
+	{
+		g_signo = 126;
+		return(g_signo);
+	}
+	if (code == 512)
+	{
+		g_signo = 127;
+		return (g_signo);
+	}
+	if(code >= 256 || code <= -256)
+	{
+		g_signo = WEXITSTATUS(code);
+		return (g_signo);
+	}
+	else
+		g_signo = code;
+	return (g_signo);
 }

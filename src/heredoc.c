@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 17:16:46 by ndo-vale          #+#    #+#             */
 /*   Updated: 2024/07/22 22:28:24 by ndo-vale         ###   ########.fr       */
@@ -100,7 +100,7 @@ char	*heredoc(char *eof_str, t_cmd *tree, char **envp, int *status)
 		}
 	}
 	else
-		;//TODO: Handle signals sent during heredoc
+		handle_sigint_status();//TODO: Handle signals sent during heredoc
 	return (NULL);
 }
 

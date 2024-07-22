@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/21 17:55:47 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/22 23:32:20 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,7 @@ typedef struct s_root
 }	t_root;
 
 // EXIT.C
+int   exit_code(int code);
 void	tokenizer_exit(char *line, t_tokenizer_data *td);
 // Cleanly frees the provided 'line' and all tokenizer_data and exits. 
 void	tree_builder_exit(t_root *r, int exit_code, char *error_msg);
@@ -173,7 +174,7 @@ char	*validate_cmd(char *cmd, char **env);
 // Returns NULL if there were any errors (with errno set).
 
 // echo.c
-void	echo(char **msg);
+int	echo(char **msg);
 bool	find_n(char *str);
 
 // export.c
