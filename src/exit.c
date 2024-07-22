@@ -21,13 +21,12 @@ void	tokenizer_exit(char *line, t_tokenizer_data *td)
 	exit(td->status);
 }
 
-void	tree_builder_exit(t_root *r)
+void	tree_builder_exit(t_root *r, int exit_code, char *error_msg)
 {
-	int	status;
-	
-	status = errno;
+	if (error_msg)
+		perror(error_msg);
 	free(r->line);
 	ft_free_tokenlst(r->organized, true);
 	ft_free_tree(r->tree);
-	exit(status);
+	exit(exit_code);
 }

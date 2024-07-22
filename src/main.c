@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/22 10:45:26 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/22 23:52:17 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,13 +26,13 @@ void	get_line(t_root *r)
 	}
 }
 
-int	ft_readline_loop(t_root *r)
+static int	ft_readline_loop(t_root *r)
 {
 	get_line(r);
 	if (!tokenizer(r))
 		return (0);
 	tree_builder(r);
-	if (errno != 0) //in case errno was set by a signal?
+	if (errno != 0)
 		return (0);
 	r->cpid = fork();
 	if (r->cpid == -1)
@@ -42,14 +42,21 @@ int	ft_readline_loop(t_root *r)
 	ft_free_tree(r->tree);
 	free(r->line);
 	wait(&r->cp_status);
-	close_temps();
+	close_temps(); //TODO: Shouldn't heredoc do this instead?
 	if (WIFEXITED(r->cp_status))
 		return (WEXITSTATUS(r->cp_status));
 	else
-	{
-		ft_printf("lol\n");
-		return (-1) ;
-	}
+		return (-1); //TODO: What is supposed to happen here?
+}
+
+static void	init_root(t_root *r, char **envp)
+{
+	r->line = NULL;
+	r->organized = NULL;
+	r->tree = NULL;
+	r->cp_status = 0;
+	r->envp = envp;
+	//r->hidden_pwd = ft_strdup(envp; TODO: finish setting this up
 }
 
 int	main(int argc, char **argv, char **envp)
@@ -59,11 +66,7 @@ int	main(int argc, char **argv, char **envp)
 	if (argc != 1)
 		return (ft_putstr_fd(LAUNCH_ERROR, 2), 0);
 	(void)argv;
-	r.line = NULL;
-	r.organized = NULL;
-	r.tree = NULL;
-	r.cp_status = 0;
-	r.envp = envp;
+	init_root(&r, envp);
 	while (1)
 		errno = ft_readline_loop(&r);
 	return (errno);

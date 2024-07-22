@@ -30,6 +30,7 @@
 # define PROMPT "REPLACE WITH CURRENT WORKING DIR: "
 # define LAUNCH_ERROR "Launch error\n"
 # define CTRLD_EXIT_MSG "exit\n"
+# define CTRLD_HEREDOC_MSG "warning: here-document delimited by end-of-file\n"
 # define FORK_ERROR "fork\n"
 # define SYNTAX_ERROR "Syntax error\n"
 
@@ -48,7 +49,7 @@
 # define REDIR 1
 # define PIPE 2
 
-extern int g_signo;
+//extern int g_signo;
 
 //General struct that can be typecasted into any node type
 typedef struct s_cmd
@@ -93,15 +94,19 @@ typedef struct s_root
 	t_token	*organized;
 	t_cmd	*tree;
 	pid_t	cpid;
-	int	cp_status;
+	int		cp_status;
 }	t_root;
 
-// exit.c
+// EXIT.C
 void	tokenizer_exit(char *line, t_tokenizer_data *td);
-void	tree_builder_exit(t_root *r);
+// Cleanly frees the provided 'line' and all tokenizer_data and exits. 
+void	tree_builder_exit(t_root *r, int exit_code, char *error_msg);
+// Cleanly frees all data present in 'r', prints the error message
+// according to errno if error_msg is not NULL and exits with 'exit_code'.
 
-// free_tree.c
+// FREE_TREE.C
 void	ft_free_tree(t_cmd *node);
+// Cleanly frees all data present in the tree with the head 'node'.
 
 // tokenlst_helpers.c
 t_token	*ft_tokennew(char type, char *content);
@@ -110,10 +115,17 @@ void	ft_tokenadd_back(t_token **token, t_token *new);
 int		ft_token_createadd(t_token **tokenlst, char type, char *tokenstr);
 void	ft_free_tokenlst(t_token *tokenlst, bool free_content);
 
-// constructors.c
+// CPNSTRUCTORS.C
 t_cmd	*exec_cmd(char **envp);
+// Builds an exec node and returns it as t_cmd (or NULL in case of error).
 t_cmd	*pipe_cmd(t_cmd *left, t_cmd *right);
+// Builds a pipe node and returns it as t_cmd (or NULL in case of error).
 t_cmd	*redir_cmd(t_cmd *cmd, char *file, int mode, int fd);
+// Receives a cmd which is a linked list of redir nodes
+// finished by an exec node.
+// Builds a new redir node and places it between
+// the last redir and the exec nodes.
+// Returns the HEAD of the list (or NULL in case of error).
 
 //TOKENIZER.C
 int		ft_expand_env(char **cmd, char **token, char **envp);
@@ -141,10 +153,11 @@ void	parse_redirs(t_tokenizer_data *td);
 int		parse_redirs_pipes(t_tokenizer_data *td);
 
 // TREE_BUILDER.C
-void	tree_builder(t_root *r/*t_token *tokenlst, char **envp*/);
+void	tree_builder(t_root *r);
 
-// heredoc.c
-void    find_heredocs(t_cmd *cmd, t_cmd *start, char **envp);
+// HEREDOC.C
+int		set_heredocs(t_cmd *cmd, t_cmd *start, char **envp, int *status);
+// Creates all heredocs present in the tree 'cmd', 
 
 // TREE_EXECUTER.C
 void	run_cmd(t_cmd *cmd, t_cmd *start);
@@ -154,6 +167,10 @@ int		get_next_rn(void);
 
 //command_helpers.c
 char	*validate_cmd(char *cmd, char **env);
+// Tries to find the given 'cmd' in the provided path present in 'env'.
+// Returns the path to the command binary if the command could be found.
+// Returns the allocated str "INVALID" if the command could not be found.
+// Returns NULL if there were any errors (with errno set).
 
 // echo.c
 void	echo(char **msg);

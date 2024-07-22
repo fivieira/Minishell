@@ -14,6 +14,8 @@
 
 static void	free_pipe(t_pipe *node)
 {
+	if (!node)
+		return ;
 	ft_free_tree(node->left);
 	ft_free_tree(node->right);
 	free(node);
@@ -21,6 +23,8 @@ static void	free_pipe(t_pipe *node)
 
 static void	free_redir(t_redir *node)
 {
+	if (!node)
+		return ;
 	ft_free_tree(node->cmd);
 	free(node->file);
 	free(node);
@@ -28,6 +32,8 @@ static void	free_redir(t_redir *node)
 
 void	ft_free_tree(t_cmd *node)
 {
+	if (!node)
+		return ;
 	if (node->type == PIPE)
 		free_pipe((t_pipe *)node);
 	else if (node->type == REDIR)
