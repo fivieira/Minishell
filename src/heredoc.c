@@ -6,13 +6,13 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 17:16:46 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/22 23:25:52 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/22 22:28:24 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-int	find_and_expand(char **line, char **envp)
+static int	find_and_expand(char **line, char **envp)
 {
 	char	*final;
 	char	*ptr;
@@ -20,6 +20,8 @@ int	find_and_expand(char **line, char **envp)
 
 	ptr = *line;
 	final = ft_strdup("");
+	if (!final)
+		return (errno);
 	while (*ptr)
 	{
 		if (*ptr == '$')
@@ -30,7 +32,7 @@ int	find_and_expand(char **line, char **envp)
 			ptr += 1;
 		}
 		if (status != 0)
-			return (free(final), free(line), errno);
+			return (free(final), free(*line), errno);
 	}
 	free(*line);
 	*line = final;
@@ -54,13 +56,15 @@ char	*create_heredoc_file(char *filename, char *eof_str, char **envp)
 		free(line);
 		line = readline(">");
 	}
+	if (!line)
+		ft_putstr_fd(CTRLD_HEREDOC_MSG, 2);
 	free(eof_str);
 	free(line);
 	close(fd);
 	exit(0);
 }
 
-char	*heredoc(char *eof_str, t_cmd *tree, char **envp)
+char	*heredoc(char *eof_str, t_cmd *tree, char **envp, int *status)
 {
 	char	*filename;
 	pid_t	cpid;
@@ -68,9 +72,14 @@ char	*heredoc(char *eof_str, t_cmd *tree, char **envp)
 
 	filename = ft_strjoin_free(ft_strdup(".tempfiles/tempheredoc"),
                                 ft_itoa(get_next_rn()));
+	if (!filename)
+	{
+		*status = errno;
+		return (NULL);
+	}
 	cpid = fork();
 	if (cpid == -1)
-		return (perror(FORK_ERROR), NULL);
+		return (NULL);
 	else if (cpid == 0)
 	{
 		eof_str = ft_strdup(eof_str);
@@ -78,7 +87,6 @@ char	*heredoc(char *eof_str, t_cmd *tree, char **envp)
 		create_heredoc_file(filename, eof_str, envp);
 	}
 	free(eof_str);
-	//free(eof_str);
 	wait(&cp_status);
 	if (WIFEXITED(cp_status))
 	{
@@ -87,6 +95,7 @@ char	*heredoc(char *eof_str, t_cmd *tree, char **envp)
 		else
 		{
 			free(filename);
+			*status = WEXITSTATUS(cp_status);
 			return (NULL);
 		}
 	}
@@ -95,7 +104,7 @@ char	*heredoc(char *eof_str, t_cmd *tree, char **envp)
 	return (NULL);
 }
 
-void	find_heredocs(t_cmd *cmd, t_cmd *start, char **envp)
+int	set_heredocs(t_cmd *cmd, t_cmd *start, char **envp, int *status)
 {
 	t_pipe	*pipe_node;
 	t_redir	*redir_node;
@@ -103,14 +112,21 @@ void	find_heredocs(t_cmd *cmd, t_cmd *start, char **envp)
 	if (cmd->type == PIPE)
 	{
 		pipe_node = (t_pipe *)cmd;
-		find_heredocs(pipe_node->left, start, envp);
-		find_heredocs(pipe_node->right, start, envp);
+		if (set_heredocs(pipe_node->left, start, envp, status)
+			|| set_heredocs(pipe_node->right, start, envp, status))
+			return (*status);
 	}
 	else if (cmd->type == REDIR)
 	{
 		redir_node = (t_redir *)cmd;
 		if (redir_node->redir_type == '-')
-			redir_node->file = heredoc(redir_node->file, start, envp);
-		find_heredocs(redir_node->cmd, start, envp);
+		{
+			redir_node->file = heredoc(redir_node->file, start, envp, status);
+			if (!redir_node->file)
+				return (*status);
+		}
+		if (set_heredocs(redir_node->cmd, start, envp, status))
+			return (*status);
 	}
+	return (*status);
 }

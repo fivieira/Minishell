@@ -6,13 +6,13 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 11:32:32 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/18 17:55:17 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/22 20:39:37 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-char	*build_cmd_path(char *path, char *cmd)
+static char	*build_cmd_path(char *path, char *cmd)
 {
 	char	*path_slash;
 	char	*final_path;
@@ -23,7 +23,7 @@ char	*build_cmd_path(char *path, char *cmd)
 	return (final_path);
 }
 
-char	**get_cmd_folders(char **env)
+static char	**get_cmd_folders(char **env)
 {
 	char	*path_str;
 	char	**cmd_paths;
@@ -41,8 +41,6 @@ char	**get_cmd_folders(char **env)
 	}
 	cmd_paths = ft_split(path_str, ':');
 	free(path_str);
-	if (!cmd_paths)
-		return (NULL);
 	return (cmd_paths);
 }
 
@@ -59,6 +57,8 @@ char	*validate_cmd(char *cmd, char **env)
 	path_str = NULL;
 	i = -1;
 	cmd_paths = get_cmd_folders(env);
+	if (!cmd_paths)
+		return (NULL);
 	while (cmd_paths && cmd_paths[++i])
 	{
 		free(path_str);
