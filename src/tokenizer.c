@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/01 14:47:53 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/17 13:40:09 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/21 15:57:11 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ static void	init_data(t_tokenizer_data *td, char *cmd)
 	td->tokenstr = NULL;
 }
 
-static int	finish_tokenizer(t_tokenizer_data *td)
+static int	finish_tokenizer(t_tokenizer_data *td, t_root *r)
 {
 	if (ft_strchr("<>+-", td->type) && !td->tokenstr)
 		return (ft_putstr_fd(SYNTAX_ERROR, 2), 2);
@@ -78,20 +78,23 @@ static int	finish_tokenizer(t_tokenizer_data *td)
 	}
 	if (ft_tokenlast(td->tokenlst) && ft_tokenlast(td->tokenlst)->type == '|')
 		return (ft_putstr_fd(SYNTAX_ERROR, 2), 2);
+	r->organized = td->tokenlst;
+	if (!r->organized)
+		free(r->line);
 	return (0);
 }
 
-t_token	*tokenizer(char *cmd, char **envp)
+t_token	*tokenizer(t_root *r)
 {
 	t_tokenizer_data	td;
 
-	init_data(&td, cmd);
+	init_data(&td, r->line);
 	while (*td.cmd)
 	{
 		if (*td.cmd == '\'' || *td.cmd == '\"')
-			td.status = get_quoted(&td.cmd, &td.tokenstr, envp);
+			td.status = get_quoted(&td.cmd, &td.tokenstr, r->envp);
 		else if (*td.cmd == '$' && td.type != '-')
-			td.status = ft_expand_env(&td.cmd, &td.tokenstr, envp);
+			td.status = ft_expand_env(&td.cmd, &td.tokenstr, r->envp);
 		else if (ft_strchr("><|", *td.cmd))
 			td.status = parse_redirs_pipes(&td);
 		else if (*td.cmd == ' ')
@@ -102,10 +105,10 @@ t_token	*tokenizer(char *cmd, char **envp)
 			td.cmd += 1;
 		}
 		if (td.status != 0)
-			tokenizer_exit(cmd, &td);
+			tokenizer_exit(r->line, &td);
 	}
-	td.status = finish_tokenizer(&td);
+	td.status = finish_tokenizer(&td, r);
 	if (td.status != 0)
-		tokenizer_exit(cmd, &td);
-	return (td.tokenlst);
+		tokenizer_exit(r->line, &td);
+	return (r->organized);
 }
