@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/27 10:29:53 by fivieira          #+#    #+#             */
-/*   Updated: 2024/07/18 22:04:41 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/22 23:31:30 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ bool	find_n(char *str)
 	return (false);
 }
 
-void	echo(char **msg)
+int	echo(char **msg)
 {
 	int		i;
 	bool	flag;
