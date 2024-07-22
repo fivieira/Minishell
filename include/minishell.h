@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/22 23:32:20 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/23 00:02:37 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,8 @@
 # define PIPE 2
 
 //extern int g_signo;
-
+	extern int g_signo;
+	
 //General struct that can be typecasted into any node type
 typedef struct s_cmd
 {
