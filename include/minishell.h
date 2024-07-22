@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/21 17:55:47 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/22 23:11:03 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,8 @@ typedef struct s_root
 
 // exit.c
 void	tokenizer_exit(char *line, t_tokenizer_data *td);
+int	exit_code(int code);
+
 void	tree_builder_exit(t_root *r);
 
 // free_tree.c
