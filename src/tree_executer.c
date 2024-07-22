@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/15 12:39:07 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/17 17:22:50 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/22 15:31:12 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@ char	**create_args(t_list *argv)
 	int		i;
 
 	args = (char **)ft_calloc(ft_lstsize(argv) + 1, sizeof(char *));
+	if (!args)
+		return (NULL);
 	i = 0;
 	while (argv)
 	{
