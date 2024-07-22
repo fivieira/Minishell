@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 17:16:46 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/22 15:58:03 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/22 23:25:52 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ char	*heredoc(char *eof_str, t_cmd *tree, char **envp)
 		}
 	}
 	else
-		;//TODO: Handle signals sent during heredoc
+		handle_sigint_status();//TODO: Handle signals sent during heredoc
 	return (NULL);
 }
 

@@ -6,13 +6,13 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/29 16:20:29 by fivieira          #+#    #+#             */
-/*   Updated: 2024/07/18 22:17:02 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/22 23:35:40 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-void	pwd(t_localenv *env)
+int	pwd(t_localenv *env)
 {
 	char	path[PATH_MAX];
 	char	*out;
@@ -23,7 +23,7 @@ void	pwd(t_localenv *env)
 		return (exit_code(EXIT_SUCCESS));
 	}
 	if (ft_getenv("PWD", &out, env->content) != 0)
-		return ;// getenv returns 
+		return (ft_getenv("PWD", &out, env->content));// getenv returns 
 	ft_putendl_fd(out, 1);
 	return (exit_code(EXIT_SUCCESS));
 }
