@@ -6,95 +6,81 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/10 21:04:21 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/18 19:11:34 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/22 18:14:18 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-char	*create_heredoc_file(char *eof_str)
-{
-	char	*line;
-	char	*filename;
-	int		fd;
-
-	filename = ft_strjoin_free(ft_strdup(".tempfiles/tempheredoc"),
-			ft_itoa(get_next_rn()));
-	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	line = readline(">");
-	while (line && ft_strncmp(line, eof_str, ft_strlen(eof_str) + 1) != 0)
-	{
-		write(fd, line, ft_strlen(line));
-		write(fd, "\n", 1);
-		free(line);
-		line = readline(">");
-	}
-	free(line);
-	close(fd);
-	return (filename);
-}
-
-t_cmd	*parse_redir(t_cmd *cmd, t_token **ptr)
+t_cmd	*parse_redir(t_cmd *cmd, t_token **ptr, t_root *r)
 {
 	char	c;
-	char	*heredoc_filename;
+	t_redir	*rptr;
 
 	c = (*ptr)->type;
 	if (c == '<')
 		cmd = redir_cmd(cmd, (*ptr)->content, O_RDONLY, 0);
 	else if (c == '-')
-	{
-		heredoc_filename = create_heredoc_file((*ptr)->content);
-		cmd = redir_cmd(cmd, heredoc_filename, O_RDONLY, 0);
-	}
+		cmd = redir_cmd(cmd, (*ptr)->content, O_RDONLY, 0);
 	else if (c == '>')
 		cmd = redir_cmd(cmd, (*ptr)->content, O_WRONLY | O_CREAT | O_TRUNC, 1);
 	else if (c == '+')
 		cmd = redir_cmd(cmd, (*ptr)->content, O_WRONLY | O_CREAT | O_APPEND, 1);
+	if (!cmd)
+		tree_builder_exit(r);
+	rptr = (t_redir *)cmd;
+	while (rptr->cmd->type != EXEC)
+		rptr = (t_redir *)rptr->cmd;
+	rptr->redir_type = c;
 	return (cmd);
 }
 
-t_cmd	*parse_exec(t_token **ptr, char **envp)
+t_cmd	*parse_exec(t_token **ptr, t_root *r)
 {
 	t_cmd	*full_cmd;
 	t_exec	*exec_node;
 
-	full_cmd = exec_cmd(envp);
+	full_cmd = exec_cmd(r->envp);
+	if (!full_cmd)
+		tree_builder_exit(r);
 	exec_node = (t_exec *)full_cmd;
 	while (*ptr && (*ptr)->type != '|')
 	{
 		if ((*ptr)->type == 'a')
-			ft_lstadd_back(&(exec_node->argv), ft_lstnew((*ptr)->content));
+		{
+			if (ft_lstadd_back(&(exec_node->argv), ft_lstnew((*ptr)->content)) != 0)
+				tree_builder_exit(r); //TODO: fix segfault
+		}
 		else
-			full_cmd = parse_redir(full_cmd, ptr);
+			full_cmd = parse_redir(full_cmd, ptr, r);
 		*ptr = (*ptr)->next;
 	}
 	return (full_cmd);
 }
 
-t_cmd	*parse_pipe(t_token **ptr, char **envp)
+t_cmd	*parse_pipe(t_token **ptr, t_root *r)
 {
 	t_cmd	*node;
 
-	node = parse_exec(ptr, envp);
+	node = parse_exec(ptr, r);
+	if (!node)
+		tree_builder_exit(r);
 	if (*ptr && (*ptr)->type == '|')
 	{
 		*ptr = (*ptr)->next;
-		node = pipe_cmd(node, parse_pipe(ptr, envp));
+		node = pipe_cmd(node, parse_pipe(ptr, r));
+		if (!node)
+			tree_builder_exit(r);
 	}
 	return (node);
 }
 
-t_cmd	*tree_builder(t_token *tokenlst, char **envp)
+void	tree_builder(t_root *r)
 {
-	t_cmd	*tree;
 	t_token	*ptr;
 
-	ptr = tokenlst;
-	tree = parse_pipe(&ptr, envp);
-	//ft_free_tokenlst(tokenlst, true);
-	//exit(0);
-	ft_free_tokenlst(tokenlst, false);
-	//exit(0);
-	return (tree);
+	ptr = r->organized;
+	r->tree = parse_pipe(&ptr, r);
+	ft_free_tokenlst(r->organized, false);
+	find_heredocs(r->tree, r->tree, r->envp);
 }

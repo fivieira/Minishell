@@ -20,3 +20,14 @@ void	tokenizer_exit(char *line, t_tokenizer_data *td)
 		free(td->tokenstr);
 	exit(td->status);
 }
+
+void	tree_builder_exit(t_root *r)
+{
+	int	status;
+	
+	status = errno;
+	free(r->line);
+	ft_free_tokenlst(r->organized, true);
+	ft_free_tree(r->tree);
+	exit(status);
+}

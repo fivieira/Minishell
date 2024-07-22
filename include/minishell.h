@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/18 22:04:05 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/22 23:11:03 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,8 @@
 
 # define PROMPT "REPLACE WITH CURRENT WORKING DIR: "
 # define LAUNCH_ERROR "Launch error\n"
-# define FORK_ERROR "Fork error\n"
+# define CTRLD_EXIT_MSG "exit\n"
+# define FORK_ERROR "fork\n"
 # define SYNTAX_ERROR "Syntax error\n"
 
 // characher sets for token delimitation
@@ -67,6 +68,7 @@ typedef struct s_redir
 	int		type;
 	t_cmd	*cmd;
 	char	*file;
+	char	redir_type;
 	int		mode;
 	int		fd;
 }	t_redir;
@@ -84,13 +86,21 @@ typedef struct s_localenv
 	char	**sort;
 }	t_localenv;
 
-// helpers.c
-int		is_fon(int flags, int f);
-void	set_flag(int *flags, int f, bool set);
+typedef struct s_root
+{
+	char	*line;
+	char	**envp;
+	t_token	*organized;
+	t_cmd	*tree;
+	pid_t	cpid;
+	int	cp_status;
+}	t_root;
 
 // exit.c
 void	tokenizer_exit(char *line, t_tokenizer_data *td);
-int	exit_code(int code):
+int	exit_code(int code);
+
+void	tree_builder_exit(t_root *r);
 
 // free_tree.c
 void	ft_free_tree(t_cmd *node);
@@ -125,7 +135,7 @@ int		get_quoted(char **cmd, char **token, char **envp);
 // If error comes from malloc, 'token' becomes NULL.
 int		parse_spaces(t_tokenizer_data *td);
 //Parses space present in cmd. Returns 0 on Success, 1 on Error.
-t_token	*tokenizer(char *cmd, char **envp);
+t_token	*tokenizer(t_root *r);
 
 // tokenizer_helpers.c
 int		parse_spaces(t_tokenizer_data *td);
@@ -133,7 +143,10 @@ void	parse_redirs(t_tokenizer_data *td);
 int		parse_redirs_pipes(t_tokenizer_data *td);
 
 // TREE_BUILDER.C
-t_cmd	*tree_builder(t_token *tokenlst, char **envp);
+void	tree_builder(t_root *r/*t_token *tokenlst, char **envp*/);
+
+// heredoc.c
+void    find_heredocs(t_cmd *cmd, t_cmd *start, char **envp);
 
 // TREE_EXECUTER.C
 void	run_cmd(t_cmd *cmd, t_cmd *start);
