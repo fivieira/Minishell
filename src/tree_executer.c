@@ -6,13 +6,13 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/15 12:39:07 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/22 15:31:12 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/23 17:33:16 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-char	**create_args(t_list *argv)
+char	**create_args(t_list *argv, bool dup)
 {
 	char	**args;
 	int		i;
@@ -23,7 +23,10 @@ char	**create_args(t_list *argv)
 	i = 0;
 	while (argv)
 	{
-		args[i] = (char *)argv->content;
+		if (dup)
+			args[i] = ft_strdup((char *)argv->content);
+		else
+			args[i] = (char *)argv->content;
 		i++;
 		argv = argv->next;
 	}
@@ -34,13 +37,18 @@ void	run_exec(t_exec *cmd, t_cmd *start)
 {
 	char	*cmd_path;
 	char	**args;
+	int	status;
 
-	args = create_args(cmd->argv);
+	args = create_args(cmd->argv, false);
 	if (!args)
 	{
+		perror("malloc");
 		ft_free_tree(start);
 		exit(errno);
 	}
+	status = find_exec_builtin(args, cmd->envp, start);
+	if (status != 127)
+		exit(status);
 	cmd_path = validate_cmd(args[0], cmd->envp);
 	if (!cmd_path)
 	{
@@ -89,9 +97,9 @@ void	run_pipe(t_pipe *cmd, t_cmd *start)
 	}
 	close(p[0]);
 	close(p[1]);
-	wait(0);
-	wait(0);
 	ft_free_tree(start);
+	wait(0);
+	wait(0);
 	exit(0);
 }
 

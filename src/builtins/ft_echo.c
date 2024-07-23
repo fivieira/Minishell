@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   echo.c                                             :+:      :+:    :+:   */
+/*   ft_echo.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,7 +12,7 @@
 
 #include "../../include/minishell.h"
 
-bool	find_n(char *str)
+static bool	find_n(char *str)
 {
 	int	i;
 
@@ -32,12 +32,13 @@ bool	find_n(char *str)
 	return (false);
 }
 
-void	echo(char **msg)
+int	ft_echo(char **msg, char **envp)
 {
 	int		i;
 	bool	flag;
 	char	*temp;
 
+	(void)envp;
 	i = 0;
 	flag = false;
 	while (msg[++i] && find_n(msg[i]))
@@ -45,15 +46,15 @@ void	echo(char **msg)
 	while (msg[i] != NULL)
 	{
 		temp = ft_strdup(msg[i]);
-		if (temp)
-		{
-			printf("%s", temp);
-			free(temp);
-			if (msg[i + 1] != NULL)
-				printf(" ");
-		}
+		if (!temp)
+			return (errno);
+		printf("%s", temp);
+		free(temp);
+		if (msg[i + 1] != NULL)
+			printf(" ");
 		i++;
 	}
 	if (!flag)
 		printf("\n");
+	return (0);
 }

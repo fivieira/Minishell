@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/21 17:55:47 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/23 09:51:08 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@
 # define FORK_ERROR "fork\n"
 # define SYNTAX_ERROR "Syntax error\n"
 
+# define BUILTINS_AM 3
+
 // characher sets for token delimitation
 # define WHITESPACE " \t\r\n\v"
 # define TOKEN_DELIMS " <>|$"
@@ -49,9 +51,12 @@
 # define REDIR 1
 # define PIPE 2
 
-//extern int g_signo;
+extern int g_signo;
 
 //General struct that can be typecasted into any node type
+
+typedef int (*builtin_ptr)(char **, char **);
+
 typedef struct s_cmd
 {
 	int	type;
@@ -161,6 +166,8 @@ int		set_heredocs(t_cmd *cmd, t_cmd *start, char **envp, int *status);
 
 // TREE_EXECUTER.C
 void	run_cmd(t_cmd *cmd, t_cmd *start);
+void	run_redir(t_redir *cmd, t_cmd *start);
+char    **create_args(t_list *argv, bool);
 
 // tree_helpers.c
 int		get_next_rn(void);
@@ -172,9 +179,24 @@ char	*validate_cmd(char *cmd, char **env);
 // Returns the allocated str "INVALID" if the command could not be found.
 // Returns NULL if there were any errors (with errno set).
 
-// echo.c
-void	echo(char **msg);
-bool	find_n(char *str);
+// exec_builtins.c
+int    find_exec_builtin(char **args, char **envp, t_cmd *tree);
+void    builtin_redir(t_redir *cmd, t_cmd *start);
+int	exec_parent_builtin(t_cmd *tree);
+
+// builtins_utils.c
+bool	is_end_cmd_builtin(t_cmd *tree);
+int	get_builtin_func_i(char *cmd);
+builtin_ptr	get_builtin(int i);
+
+// ft_echo.c
+int	ft_echo(char **msg, char **envp);
+
+// ft_pwd.c
+int	ft_pwd(char **argv, char **envp);
+
+// ft_exit.c
+int	ft_exit(char **argv, char **envp);
 
 // export.c
 int		ft_getenv(const char *name, char **value, char **envp);
