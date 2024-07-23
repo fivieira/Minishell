@@ -39,6 +39,8 @@ int	ft_echo(char **msg, char **envp)
 	char	*temp;
 
 	(void)envp;
+	if (!msg)
+		return (errno);
 	i = 0;
 	flag = false;
 	while (msg[++i] && find_n(msg[i]))
