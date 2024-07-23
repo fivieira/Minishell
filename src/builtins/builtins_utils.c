@@ -23,7 +23,7 @@ bool	is_end_cmd_builtin(t_cmd *tree)
 		ptr = ((t_redir *)ptr)->cmd;
 	}
 	exec_node = (t_exec *)ptr;
-	if (get_builtin_func_i((char *)exec_node->argv->content) != -1)
+	if (exec_node->argv && get_builtin_func_i((char *)exec_node->argv->content) != -1)
 		return (true);
 	return (false);
 }
@@ -50,7 +50,8 @@ int	get_builtin_func_i(char *cmd)
         builtins[1] = "pwd";
         builtins[2] = "exit";
         builtins[BUILTINS_AM] = NULL;
-
+	if (!cmd)
+		return (-1);
 	while (builtins[++i])
 		if (ft_strncmp(cmd, builtins[i], ft_strlen(builtins[i]) + 1) == 0)
 			return (i);
