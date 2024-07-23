@@ -31,7 +31,7 @@ int	update_token(char **token, char *start, int len)
 	return (0);
 }
 
-int	get_quoted(char **cmd, char **token, char **envp)
+int	get_quoted(char **cmd, char **token, t_root *r)
 {
 	char	*start;
 	char	c;
@@ -44,7 +44,7 @@ int	get_quoted(char **cmd, char **token, char **envp)
 		if (c == '\"' && **cmd == '$')
 		{
 			if (update_token(token, start, *cmd - start) != 0
-				|| ft_expand_env(cmd, token, envp) != 0)
+				|| ft_expand_env(cmd, token, r) != 0)
 				return (errno);
 			start = *cmd;
 		}
@@ -92,9 +92,9 @@ t_token	*tokenizer(t_root *r)
 	while (*td.cmd)
 	{
 		if (*td.cmd == '\'' || *td.cmd == '\"')
-			td.status = get_quoted(&td.cmd, &td.tokenstr, r->envp);
+			td.status = get_quoted(&td.cmd, &td.tokenstr, r);
 		else if (*td.cmd == '$' && td.type != '-')
-			td.status = ft_expand_env(&td.cmd, &td.tokenstr, r->envp);
+			td.status = ft_expand_env(&td.cmd, &td.tokenstr, r);
 		else if (ft_strchr("><|", *td.cmd))
 			td.status = parse_redirs_pipes(&td);
 		else if (*td.cmd == ' ')

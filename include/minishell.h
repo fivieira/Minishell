@@ -133,17 +133,12 @@ t_cmd	*redir_cmd(t_cmd *cmd, char *file, int mode, int fd);
 // Returns the HEAD of the list (or NULL in case of error).
 
 //TOKENIZER.C
-int		ft_expand_env(char **cmd, char **token, char **envp);
-// Takes a pointer 'cmd', finds and expands the var pointed by it 
-// and appends that expansion to 'token'.
-// 'cmd' is updated to point at the first byte after the tested envvar.
-// Returns 0 if successful. In case of error, 'token' is freed and returns 1 .
 int		update_token(char **token, char *start, int size);
 // Takes an existing 'token' and appends to it 'size' bytes 
 // of a strig pointed by 'start'.
 // Returns 0 if successful. In case of error, 'token' is freed 
 // and set to NULL, and 1 is returned.
-int		get_quoted(char **cmd, char **token, char **envp);
+int		get_quoted(char **cmd, char **token, t_root *);
 // Appends to 'token' the quoted string pointed by 'cmd'
 // which starts with quote type 'c'.
 // Returns 0 if successful, 1 if there is an error. 
@@ -161,7 +156,7 @@ int		parse_redirs_pipes(t_tokenizer_data *td);
 void	tree_builder(t_root *r);
 
 // HEREDOC.C
-int		set_heredocs(t_cmd *cmd, t_cmd *start, char **envp, int *status);
+int		set_heredocs(t_cmd *cmd, t_root *r, int *status);
 // Creates all heredocs present in the tree 'cmd', 
 
 // TREE_EXECUTER.C
@@ -203,7 +198,7 @@ int		ft_getenv(const char *name, char **value, char **envp);
 // Searches for the envvar 'name' in 'envp' and saves its value in 'value'.
 // Returns 1 if any error occured, 0 otherwise.
 // 'value' is set to NULL in case of error or if 'name' was not found in 'envp'.
-int		ft_expand_env(char **cmd, char **token, char **envp);
+int		ft_expand_env(char **cmd, char **token, t_root *r);
 // Takes a pointer to the '$' character of a string searches for the 
 // subconsequent var in 'envp' and updates 'token' accordingly.
 // 'cmd' is updated to point at the charecter 
