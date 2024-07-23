@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/27 10:29:53 by fivieira          #+#    #+#             */
-/*   Updated: 2024/07/18 12:55:56 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/23 18:20:47 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,5 +56,5 @@ int	ft_echo(char **msg, char **envp)
 	}
 	if (!flag)
 		printf("\n");
-	return (0);
+	return (exit_code(EXIT_SUCCESS));
 }

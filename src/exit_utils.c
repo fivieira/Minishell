@@ -1,24 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   env.c                                              :+:      :+:    :+:   */
+/*   exist_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/07 11:21:07 by fivieira          #+#    #+#             */
-/*   Updated: 2024/07/18 22:14:19 by fivieira         ###   ########.fr       */
+/*   Created: 2024/07/18 21:55:16 by fivieira          #+#    #+#             */
+/*   Updated: 2024/07/18 21:59:45 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/minishell.h"
+#include "../include/minishell.h"
 
-int	command_env(t_localenv *local)
+int	exit_code(int code)
 {
-	if (local == NULL)
+	if (code == 298)
 	{
-		ft_putstr_fd(": local environment is NULL\n", 2);
-		return (exit_code(EXIT_FAILURE));
-	}	
-	//prtstr_env(local->content);
-	return (exit_code(EXIT_SUCCESS)); // tratar erro com os sinais
+		g_signo = 42;
+		return (g_signo);
+	}
+	if (code == 5120 || code == 13)
+	{
+		g_signo = 126;
+		return(g_signo);
+	}
+	if (code == 512)
+	{
+		g_signo = 127;
+		return (g_signo);
+	}
+	if(code >= 256 || code <= -256)
+	{
+		g_signo = WEXITSTATUS(code);
+		return (g_signo);
+	}
+	else
+		g_signo = code;
+	return (g_signo);
 }
