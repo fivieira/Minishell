@@ -49,18 +49,25 @@ int	ft_safe_getenv(char *start, int len, char **value, char **envp)
 	return (status);
 }
 
-int	ft_expand_env(char **cmd, char **token, char **envp)
+int	ft_expand_env(char **cmd, char **token, t_root *r)
 {
 	int		count;
 	char	*value;
 
 	count = 0;
 	*cmd += 1;
+	if (**cmd == '?')
+	{
+		*cmd += 1;
+		char	*last_error;
+		last_error = ft_itoa(WEXITSTATUS(r->cp_status));
+		return (update_token(token, last_error, ft_strlen(last_error)));
+	}
 	while (ft_isalnum((*cmd)[count]) || (*cmd)[count] == '_')
 		count++;
 	if (!count)
 		return (update_token(token, (*cmd) - 1, 1));
-	if (ft_safe_getenv(*cmd, count, &value, envp) != 0)
+	if (ft_safe_getenv(*cmd, count, &value, r->envp) != 0)
 		return (errno);
 	(*cmd) += count;
 	if (!value)

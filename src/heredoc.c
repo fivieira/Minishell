@@ -12,7 +12,7 @@
 
 #include "../include/minishell.h"
 
-static int	find_and_expand(char **line, char **envp)
+static int	find_and_expand(char **line, t_root *r)
 {
 	char	*final;
 	char	*ptr;
@@ -25,7 +25,7 @@ static int	find_and_expand(char **line, char **envp)
 	while (*ptr)
 	{
 		if (*ptr == '$')
-			status = ft_expand_env(&ptr, &final, envp);
+			status = ft_expand_env(&ptr, &final, r);
 		else
 		{
 			status = update_token(&final, ptr, 1);
@@ -39,7 +39,7 @@ static int	find_and_expand(char **line, char **envp)
 	return (0);
 }
 
-char	*create_heredoc_file(char *filename, char *eof_str, char **envp)
+char	*create_heredoc_file(char *filename, char *eof_str, t_root *r)
 {
 	char	*line;
 	int		fd;
@@ -49,7 +49,7 @@ char	*create_heredoc_file(char *filename, char *eof_str, char **envp)
 	line = readline(">");
 	while (line && ft_strncmp(line, eof_str, ft_strlen(eof_str) + 1) != 0)
 	{
-		if (find_and_expand(&line, envp) != 0)
+		if (find_and_expand(&line, r) != 0)
 			exit (errno);
 		write(fd, line, ft_strlen(line));
 		write(fd, "\n", 1);
@@ -64,7 +64,7 @@ char	*create_heredoc_file(char *filename, char *eof_str, char **envp)
 	exit(0);
 }
 
-char	*heredoc(char *eof_str, t_cmd *tree, char **envp, int *status)
+char	*heredoc(char *eof_str, t_root *r, int *status)
 {
 	char	*filename;
 	pid_t	cpid;
@@ -83,8 +83,8 @@ char	*heredoc(char *eof_str, t_cmd *tree, char **envp, int *status)
 	else if (cpid == 0)
 	{
 		eof_str = ft_strdup(eof_str);
-		ft_free_tree(tree);
-		create_heredoc_file(filename, eof_str, envp);
+		ft_free_tree(r->tree);
+		create_heredoc_file(filename, eof_str, r);
 	}
 	free(eof_str);
 	wait(&cp_status);
@@ -104,7 +104,7 @@ char	*heredoc(char *eof_str, t_cmd *tree, char **envp, int *status)
 	return (NULL);
 }
 
-int	set_heredocs(t_cmd *cmd, t_cmd *start, char **envp, int *status)
+int	set_heredocs(t_cmd *cmd, t_root *r, int *status)
 {
 	t_pipe	*pipe_node;
 	t_redir	*redir_node;
@@ -112,8 +112,8 @@ int	set_heredocs(t_cmd *cmd, t_cmd *start, char **envp, int *status)
 	if (cmd->type == PIPE)
 	{
 		pipe_node = (t_pipe *)cmd;
-		if (set_heredocs(pipe_node->left, start, envp, status)
-			|| set_heredocs(pipe_node->right, start, envp, status))
+		if (set_heredocs(pipe_node->left, r, status)
+			|| set_heredocs(pipe_node->right, r, status))
 			return (*status);
 	}
 	else if (cmd->type == REDIR)
@@ -121,11 +121,11 @@ int	set_heredocs(t_cmd *cmd, t_cmd *start, char **envp, int *status)
 		redir_node = (t_redir *)cmd;
 		if (redir_node->redir_type == '-')
 		{
-			redir_node->file = heredoc(redir_node->file, start, envp, status);
+			redir_node->file = heredoc(redir_node->file, r, status);
 			if (!redir_node->file)
 				return (*status);
 		}
-		if (set_heredocs(redir_node->cmd, start, envp, status))
+		if (set_heredocs(redir_node->cmd, r, status))
 			return (*status);
 	}
 	return (*status);
