@@ -61,7 +61,9 @@ int	ft_expand_env(char **cmd, char **token, t_root *r)
 		*cmd += 1;
 		char	*last_error;
 		last_error = ft_itoa(WEXITSTATUS(r->cp_status));
-		return (update_token(token, last_error, ft_strlen(last_error)));
+		count = update_token(token, last_error, ft_strlen(last_error));
+		free(last_error);
+		return (count);
 	}
 	while (ft_isalnum((*cmd)[count]) || (*cmd)[count] == '_')
 		count++;

@@ -85,7 +85,7 @@ void	tree_builder(t_root *r)
 	ptr = r->organized;
 	r->tree = parse_pipe(&ptr, r);
 	ft_free_tokenlst(r->organized, false);
-	set_heredocs(r->tree, r->tree, r->envp, &heredoc_status);
+	set_heredocs(r->tree, r, &heredoc_status);
 	if (heredoc_status)
 	{
 		ft_putstr_fd("heredoc: ", 2);
