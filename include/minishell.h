@@ -53,10 +53,9 @@
 
 extern int g_signo;
 
-//General struct that can be typecasted into any node type
-
 typedef int (*builtin_ptr)(char **, char **);
 
+//General struct that can be typecasted into any node type
 typedef struct s_cmd
 {
 	int	type;
