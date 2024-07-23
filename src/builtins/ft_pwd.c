@@ -6,17 +6,11 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/29 16:20:29 by fivieira          #+#    #+#             */
-<<<<<<< HEAD:src/builtins/ft_pwd.c
-/*   Updated: 2024/07/23 12:33:02 by ndo-vale         ###   ########.fr       */
-=======
-/*   Updated: 2024/07/22 23:35:40 by fivieira         ###   ########.fr       */
->>>>>>> 67b05ab44944c12d7f42767f2fab46e24caf3baf:src/builtins/pwd.c
+/*   Updated: 2024/07/23 18:23:25 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
-
-<<<<<<< HEAD:src/builtins/ft_pwd.c
 
 int	ft_pwd(char **argv, char **envp)
 {
