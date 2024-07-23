@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   echo.c                                             :+:      :+:    :+:   */
+/*   ft_echo.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/27 10:29:53 by fivieira          #+#    #+#             */
-/*   Updated: 2024/07/22 23:31:30 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/23 18:20:47 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-bool	find_n(char *str)
+static bool	find_n(char *str)
 {
 	int	i;
 
@@ -32,12 +32,13 @@ bool	find_n(char *str)
 	return (false);
 }
 
-int	echo(char **msg)
+int	ft_echo(char **msg, char **envp)
 {
 	int		i;
 	bool	flag;
 	char	*temp;
 
+	(void)envp;
 	i = 0;
 	flag = false;
 	while (msg[++i] && find_n(msg[i]))
@@ -45,16 +46,15 @@ int	echo(char **msg)
 	while (msg[i] != NULL)
 	{
 		temp = ft_strdup(msg[i]);
-		if (temp)
-		{
-			printf("%s", temp);
-			free(temp);
-			if (msg[i + 1] != NULL)
-				printf(" ");
-		}
+		if (!temp)
+			return (errno);
+		printf("%s", temp);
+		free(temp);
+		if (msg[i + 1] != NULL)
+			printf(" ");
 		i++;
 	}
 	if (!flag)
 		printf("\n");
-	return (exit_code(EXIT_SUCCESS));	
+	return (exit_code(EXIT_SUCCESS));
 }
