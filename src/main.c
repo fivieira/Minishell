@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/22 23:52:17 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/23 17:37:08 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,14 +33,17 @@ static int	ft_readline_loop(t_root *r)
 		return (0);
 	tree_builder(r);
 	if (errno != 0)
-		return (0);
+		return (errno);
+	free(r->line);
+	if (r->tree->type != PIPE && is_end_cmd_builtin(r->tree))
+		return (exec_parent_builtin(r->tree));
 	r->cpid = fork();
 	if (r->cpid == -1)
 		return (perror(FORK_ERROR), errno);
 	if (r->cpid == 0)
 		run_cmd(r->tree, r->tree);
 	ft_free_tree(r->tree);
-	free(r->line);
+	//free(r->line);
 	wait(&r->cp_status);
 	close_temps(); //TODO: Shouldn't heredoc do this instead?
 	if (WIFEXITED(r->cp_status))
@@ -56,7 +59,6 @@ static void	init_root(t_root *r, char **envp)
 	r->tree = NULL;
 	r->cp_status = 0;
 	r->envp = envp;
-	//r->hidden_pwd = ft_strdup(envp; TODO: finish setting this up
 }
 
 int	main(int argc, char **argv, char **envp)

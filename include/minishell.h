@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/23 00:02:37 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/23 18:19:44 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@
 # define FORK_ERROR "fork\n"
 # define SYNTAX_ERROR "Syntax error\n"
 
+# define BUILTINS_AM 3
+
 // characher sets for token delimitation
 # define WHITESPACE " \t\r\n\v"
 # define TOKEN_DELIMS " <>|$"
@@ -49,9 +51,10 @@
 # define REDIR 1
 # define PIPE 2
 
-//extern int g_signo;
-	extern int g_signo;
-	
+extern int g_signo;
+
+typedef int (*builtin_ptr)(char **, char **);
+
 //General struct that can be typecasted into any node type
 typedef struct s_cmd
 {
@@ -130,17 +133,12 @@ t_cmd	*redir_cmd(t_cmd *cmd, char *file, int mode, int fd);
 // Returns the HEAD of the list (or NULL in case of error).
 
 //TOKENIZER.C
-int		ft_expand_env(char **cmd, char **token, char **envp);
-// Takes a pointer 'cmd', finds and expands the var pointed by it 
-// and appends that expansion to 'token'.
-// 'cmd' is updated to point at the first byte after the tested envvar.
-// Returns 0 if successful. In case of error, 'token' is freed and returns 1 .
 int		update_token(char **token, char *start, int size);
 // Takes an existing 'token' and appends to it 'size' bytes 
 // of a strig pointed by 'start'.
 // Returns 0 if successful. In case of error, 'token' is freed 
 // and set to NULL, and 1 is returned.
-int		get_quoted(char **cmd, char **token, char **envp);
+int		get_quoted(char **cmd, char **token, t_root *);
 // Appends to 'token' the quoted string pointed by 'cmd'
 // which starts with quote type 'c'.
 // Returns 0 if successful, 1 if there is an error. 
@@ -158,11 +156,13 @@ int		parse_redirs_pipes(t_tokenizer_data *td);
 void	tree_builder(t_root *r);
 
 // HEREDOC.C
-int		set_heredocs(t_cmd *cmd, t_cmd *start, char **envp, int *status);
+int		set_heredocs(t_cmd *cmd, t_root *r, int *status);
 // Creates all heredocs present in the tree 'cmd', 
 
 // TREE_EXECUTER.C
 void	run_cmd(t_cmd *cmd, t_cmd *start);
+void	run_redir(t_redir *cmd, t_cmd *start);
+char    **create_args(t_list *argv, bool);
 
 // tree_helpers.c
 int		get_next_rn(void);
@@ -174,16 +174,31 @@ char	*validate_cmd(char *cmd, char **env);
 // Returns the allocated str "INVALID" if the command could not be found.
 // Returns NULL if there were any errors (with errno set).
 
-// echo.c
-int	echo(char **msg);
-bool	find_n(char *str);
+// exec_builtins.c
+int    find_exec_builtin(char **args, char **envp, t_cmd *tree);
+void    builtin_redir(t_redir *cmd, t_cmd *start);
+int	exec_parent_builtin(t_cmd *tree);
+
+// builtins_utils.c
+bool	is_end_cmd_builtin(t_cmd *tree);
+int	get_builtin_func_i(char *cmd);
+builtin_ptr	get_builtin(int i);
+
+// ft_echo.c
+int	ft_echo(char **msg, char **envp);
+
+// ft_pwd.c
+int	ft_pwd(char **argv, char **envp);
+
+// ft_exit.c
+int	ft_exit(char **argv, char **envp);
 
 // export.c
 int		ft_getenv(const char *name, char **value, char **envp);
 // Searches for the envvar 'name' in 'envp' and saves its value in 'value'.
 // Returns 1 if any error occured, 0 otherwise.
 // 'value' is set to NULL in case of error or if 'name' was not found in 'envp'.
-int		ft_expand_env(char **cmd, char **token, char **envp);
+int		ft_expand_env(char **cmd, char **token, t_root *r);
 // Takes a pointer to the '$' character of a string searches for the 
 // subconsequent var in 'envp' and updates 'token' accordingly.
 // 'cmd' is updated to point at the charecter 
