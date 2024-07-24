@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 17:16:46 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/23 00:00:23 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/23 00:12:40 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ char	*create_heredoc_file(char *filename, char *eof_str, char **envp)
 	{
 		if (find_and_expand(&line, envp) != 0)
 			exit (errno);
+		set_sig_new();	
 		write(fd, line, ft_strlen(line));
 		write(fd, "\n", 1);
 		free(line);
