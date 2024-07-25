@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/23 17:37:08 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/25 18:01:57 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ void	close_temps(void);
 
 void	get_line(t_root *r)
 {
+	set_sig_function();
 	r->line = readline(PROMPT);
 	if (!r->line)
 	{

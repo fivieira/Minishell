@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 17:16:46 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/23 00:12:40 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/25 18:50:03 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ char	*create_heredoc_file(char *filename, char *eof_str, t_root *r)
 	{
 		if (find_and_expand(&line, r) != 0)
 			exit (errno);
-		set_sig_new();	
+		set_sig_new();
 		write(fd, line, ft_strlen(line));
 		write(fd, "\n", 1);
 		free(line);
@@ -87,6 +87,7 @@ char	*heredoc(char *eof_str, t_root *r, int *status)
 		ft_free_tree(r->tree);
 		create_heredoc_file(filename, eof_str, r);
 	}
+	handle_sigint_status();
 	free(eof_str);
 	wait(&cp_status);
 	if (WIFEXITED(cp_status))
@@ -101,7 +102,7 @@ char	*heredoc(char *eof_str, t_root *r, int *status)
 		}
 	}
 	else
-		handle_sigint_status();//TODO: Handle signals sent during heredoc
+		//TODO: Handle signals sent during heredoc
 	return (NULL);
 }
 

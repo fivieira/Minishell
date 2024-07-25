@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tree_executer.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/15 12:39:07 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/23 17:33:16 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/25 17:05:29 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ void	run_exec(t_exec *cmd, t_cmd *start)
 		free(args);
 		exit(errno);
 	}
+	handle_sigint_status();
 	execve(cmd_path, args, cmd->envp);
 	ft_putstr_fd(args[0], 2);
 	ft_putstr_fd(": command not found\n", 2);
