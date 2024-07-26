@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/23 18:19:44 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/26 19:25:27 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,7 +153,7 @@ void	parse_redirs(t_tokenizer_data *td);
 int		parse_redirs_pipes(t_tokenizer_data *td);
 
 // TREE_BUILDER.C
-void	tree_builder(t_root *r);
+int	tree_builder(t_root *r);
 
 // HEREDOC.C
 int		set_heredocs(t_cmd *cmd, t_root *r, int *status);
@@ -220,4 +220,9 @@ void	set_sig_default(void);
 void	set_sig_new(void);
 void	set_sig_function(void);
 
+
+
+//TEST
+void	update_heredoc_sigint(int signo);
+void	psigint_handler_hd(int signo);
 #endif

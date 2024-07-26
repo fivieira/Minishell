@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/10 21:04:21 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/22 22:46:21 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/26 19:28:40 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ t_cmd	*parse_pipe(t_token **ptr, t_root *r)
 	return (node);
 }
 
-void	tree_builder(t_root *r)
+int	tree_builder(t_root *r)
 {
 	t_token	*ptr;
 	int	heredoc_status;
@@ -88,8 +88,10 @@ void	tree_builder(t_root *r)
 	set_heredocs(r->tree, r, &heredoc_status);
 	if (heredoc_status)
 	{
-		ft_putstr_fd("heredoc: ", 2);
-		ft_putstr_fd(strerror(heredoc_status), 2);
+		/*ft_putstr_fd("heredoc: ", 2);
+		ft_putstr_fd(strerror(heredoc_status), 2);*/
+		return (heredoc_status);
 		tree_builder_exit(r, heredoc_status, NULL);
 	}
+	return (0);
 }

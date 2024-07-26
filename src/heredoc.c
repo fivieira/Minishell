@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/21 17:16:46 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/25 18:50:03 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/26 19:31:44 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,6 @@ char	*create_heredoc_file(char *filename, char *eof_str, t_root *r)
 	{
 		if (find_and_expand(&line, r) != 0)
 			exit (errno);
-		set_sig_new();
 		write(fd, line, ft_strlen(line));
 		write(fd, "\n", 1);
 		free(line);
@@ -85,11 +84,14 @@ char	*heredoc(char *eof_str, t_root *r, int *status)
 	{
 		eof_str = ft_strdup(eof_str);
 		ft_free_tree(r->tree);
+		set_sig_new();
 		create_heredoc_file(filename, eof_str, r);
 	}
-	handle_sigint_status();
 	free(eof_str);
+	signal(SIGINT, psigint_handler_hd);
+	//handle_sigint_status();
 	wait(&cp_status);
+	signal(SIGINT, sigint_handler);
 	if (WIFEXITED(cp_status))
 	{
 		if (WEXITSTATUS(cp_status) == 0)
@@ -102,7 +104,9 @@ char	*heredoc(char *eof_str, t_root *r, int *status)
 		}
 	}
 	else
-		//TODO: Handle signals sent during heredoc
+	{
+		*status = WTERMSIG(cp_status);
+	}
 	return (NULL);
 }
 
@@ -114,8 +118,11 @@ int	set_heredocs(t_cmd *cmd, t_root *r, int *status)
 	if (cmd->type == PIPE)
 	{
 		pipe_node = (t_pipe *)cmd;
-		if (set_heredocs(pipe_node->left, r, status)
-			|| set_heredocs(pipe_node->right, r, status))
+		if (set_heredocs(pipe_node->left, r, status))
+		{
+			return (*status);
+		}
+		if (set_heredocs(pipe_node->right, r, status))
 			return (*status);
 	}
 	else if (cmd->type == REDIR)
@@ -125,7 +132,9 @@ int	set_heredocs(t_cmd *cmd, t_root *r, int *status)
 		{
 			redir_node->file = heredoc(redir_node->file, r, status);
 			if (!redir_node->file)
+			{
 				return (*status);
+			}
 		}
 		if (set_heredocs(redir_node->cmd, r, status))
 			return (*status);

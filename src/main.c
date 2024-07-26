@@ -6,7 +6,7 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/25 18:01:57 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/07/26 19:25:40 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,9 @@ void	close_temps(void);
 
 void	get_line(t_root *r)
 {
-	set_sig_function();
+	
 	r->line = readline(PROMPT);
+	
 	if (!r->line)
 	{
 		ft_putstr_fd(CTRLD_EXIT_MSG, 1);
@@ -32,8 +33,10 @@ static int	ft_readline_loop(t_root *r)
 	get_line(r);
 	if (!tokenizer(r))
 		return (0);
-	tree_builder(r);
-	if (errno != 0)
+	int	test;
+	
+	test = tree_builder(r);
+	if (test != 0)
 		return (errno);
 	free(r->line);
 	if (r->tree->type != PIPE && is_end_cmd_builtin(r->tree))
@@ -70,6 +73,7 @@ int	main(int argc, char **argv, char **envp)
 		return (ft_putstr_fd(LAUNCH_ERROR, 2), 0);
 	(void)argv;
 	init_root(&r, envp);
+	set_sig_function();
 	while (1)
 		errno = ft_readline_loop(&r);
 	return (errno);
