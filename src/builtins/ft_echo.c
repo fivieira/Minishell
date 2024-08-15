@@ -5,58 +5,45 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/27 10:29:53 by fivieira          #+#    #+#             */
-/*   Updated: 2024/07/23 18:20:47 by ndo-vale         ###   ########.fr       */
+/*   Created: 2024/07/28 10:10:48 by ndo-vale          #+#    #+#             */
+/*   Updated: 2024/08/01 16:06:30 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-static bool	find_n(char *str)
+static int	is_n(char *arg)
 {
-	int	i;
-
-	i = 0;
-	if (!str[i])
-		return (false);
-	if (str[i] && str[i] == '-')
+	if (*arg != '-')
+		return (0);
+	arg += 1;
+	while (*arg)
 	{
-		while (str[++i])
-		{
-			if (str[i] != 'n')
-				return (false);
-		}
-		if (str[i - 1] == 'n')
-			return (true);
+		if (*arg != 'n')
+			return (0);
+		arg += 1;
 	}
-	return (false);
+	return (1);
 }
 
-int	ft_echo(char **msg, char **envp)
+int	ft_echo(char **argv, char ***envp)
 {
 	int		i;
-	bool	flag;
-	char	*temp;
+	int		flag;
 
 	(void)envp;
-	if (!msg)
-		return (errno);
 	i = 0;
-	flag = false;
-	while (msg[++i] && find_n(msg[i]))
-		flag = true;
-	while (msg[i] != NULL)
+	flag = 0;
+	while (argv[++i] && is_n(argv[i]))
+		flag = 1;
+	while (argv[i])
 	{
-		temp = ft_strdup(msg[i]);
-		if (!temp)
-			return (errno);
-		printf("%s", temp);
-		free(temp);
-		if (msg[i + 1] != NULL)
-			printf(" ");
+		write(1, argv[i], ft_strlen(argv[i]));
 		i++;
+		if (argv[i])
+			write(1, " ", 1);
 	}
 	if (!flag)
-		printf("\n");
-	return (exit_code(EXIT_SUCCESS));
+		write(1, "\n", 1);
+	return (0);
 }

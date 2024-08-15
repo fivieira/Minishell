@@ -1,27 +1,15 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_pwd.c                                           :+:      :+:    :+:   */
+/*   general_helpers.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndo-vale <ndo-vale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/28 10:20:39 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/08/01 16:11:22 by fivieira         ###   ########.fr       */
+/*   Created: 2024/08/06 10:13:59 by ndo-vale          #+#    #+#             */
+/*   Updated: 2024/08/08 20:18:23 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/minishell.h"
+#include "../include/minishell.h"
 
-int	ft_pwd(char **argv, char ***envp)
-{
-	char	*cwd;
 
-	(void)argv;
-	(void)envp;
-	cwd = getcwd(NULL, 0);
-	if (!cwd)
-		return (errno);
-	ft_printf("%s\n", cwd);
-	free(cwd);
-	return (0);
-}

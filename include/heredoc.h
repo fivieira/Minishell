@@ -1,34 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strdup.c                                        :+:      :+:    :+:   */
+/*   heredoc.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/11 12:47:11 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/04/11 13:02:54 by ndo-vale         ###   ########.fr       */
+/*   Created: 2024/08/02 10:55:07 by ndo-vale          #+#    #+#             */
+/*   Updated: 2024/08/02 10:56:44 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#ifndef HEREDOC_H
+# define HEREDOC_H
 
-char	*ft_strdup(const char *s)
-{
-	char	*ptr;
-	size_t	size;
-	size_t	i;
+void	init_tempfiles_path(char *path_to_set);
+char	*get_tempfiles_folder(void);
 
-	if (!s)
-		return (NULL);
-	size = ft_strlen(s);
-	ptr = (char *)malloc((size + 1) * sizeof(char));
-	if (ptr == NULL)
-		return (NULL);
-	i = 0;
-	while (i < size + 1)
-	{
-		ptr[i] = s[i];
-		i++;
-	}
-	return (ptr);
-}
+#endif

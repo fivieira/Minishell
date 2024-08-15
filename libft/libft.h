@@ -6,7 +6,7 @@
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/09 19:12:31 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/09 15:51:52 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/07/24 14:25:20 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ typedef struct s_buffer
 }	t_buffer;
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 1
+#  define BUFFER_SIZE 100
 # endif
 
 //Character check and manipulation
@@ -59,7 +59,7 @@ char	*ft_strrchr(const char *s, int c);
 int		ft_strncmp(const char *s1, const char *s2, size_t n);
 char	*ft_strnstr(const char *big, const char *little, size_t len);
 char	*ft_strdup(const char *s);
-char	*ft_strndup(const char *s, size_t n);
+char	*ft_strldup(const char *s, int l);
 char	*ft_substr(char const *s, unsigned int start, size_t len);
 char	*ft_strjoin(char const *s1, char const *s2);
 char	*ft_strjoin_free(char *s1, char *s2);
@@ -91,6 +91,7 @@ t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *));
 //Miscellaneous
 int		ft_is_little_endian(void);
 char	*get_next_line(int fd);
-void	ft_free_matrix(void **matrix);
+void	ft_matrix_free(void ***matrix);
+void	**ft_matrix_dup(void **matrix);
 
 #endif

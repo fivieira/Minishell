@@ -3,62 +3,121 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndo-vale <ndo-vale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/20 19:24:57 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/23 17:37:08 by ndo-vale         ###   ########.fr       */
+/*   Created: 2024/07/24 13:28:21 by ndo-vale          #+#    #+#             */
+/*   Updated: 2024/08/13 20:15:45 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-int g_signo = 0;
-
-void	close_temps(void);
-
-void	get_line(t_root *r)
+void	run_pipeline(t_root *r)
 {
-	r->line = readline(PROMPT);
-	if (!r->line)
+	pid_t	cpid;
+	int		cpstatus;
+
+	cpid = fork();
+	if (cpid == -1)
+		exit_with_standard_error(r, "fork", errno, 0);
+	if (cpid == 0)
 	{
-		ft_putstr_fd(CTRLD_EXIT_MSG, 1);
-		exit(WEXITSTATUS(r->cp_status));
+		signal(SIGQUIT, SIG_DFL);
+		signal(SIGINT, signal_handler_pipeline_childs);
+		execute_node(r->tree, r);
+	}
+	free_tree(&r->tree);
+	wait(&cpstatus);
+	if (WIFEXITED(cpstatus))
+		r->exit_code = WEXITSTATUS(cpstatus);
+	else
+	{
+		if (WCOREDUMP(cpstatus))
+			ft_putstr_fd(CORE_DUMP_MSG, STDERR_FILENO);
+		r->exit_code = 128 + WTERMSIG(cpstatus);
 	}
 }
 
-static int	ft_readline_loop(t_root *r)
+static void	execute_builtin_in_parent(t_root *r)
 {
-	get_line(r);
-	if (!tokenizer(r))
-		return (0);
-	tree_builder(r);
-	if (errno != 0)
-		return (errno);
-	free(r->line);
-	if (r->tree->type != PIPE && is_end_cmd_builtin(r->tree))
-		return (exec_parent_builtin(r->tree));
-	r->cpid = fork();
-	if (r->cpid == -1)
-		return (perror(FORK_ERROR), errno);
-	if (r->cpid == 0)
-		run_cmd(r->tree, r->tree);
-	ft_free_tree(r->tree);
-	//free(r->line);
-	wait(&r->cp_status);
-	close_temps(); //TODO: Shouldn't heredoc do this instead?
-	if (WIFEXITED(r->cp_status))
-		return (WEXITSTATUS(r->cp_status));
+	t_exec	*exec_node;
+	int		original_stdout;
+	int		original_stdin;
+	
+	exec_node = (t_exec *)r->tree;
+	original_stdin = dup(STDIN_FILENO); //Protect
+	original_stdout = dup(STDOUT_FILENO);
+	if (original_stdout < 0)
+	{
+		perror("dup");
+		free_tree(&r->tree);
+		return ;
+	}
+	if (execute_redirs(exec_node->redirs, r) != 0)
+	{
+		close(original_stdout);
+		free_tree(&r->tree);
+		return ;
+	}
+	if (ft_strncmp(exec_node->argv->content, "exit", 5) == 0)
+		ft_exit_parent(r, exec_node);
 	else
-		return (-1); //TODO: What is supposed to happen here?
+		r->exit_code = run_builtin(((t_exec *)r->tree)->argv, &r->envp);
+	if (errno)
+		exit_with_standard_error(r, "builtin", errno, 0);
+	free_tree(&r->tree);
+	if (dup2(original_stdout, STDOUT_FILENO) < 0)
+		perror("dup");
+	dup2(original_stdin, STDIN_FILENO); //Protect
+	close(original_stdout);
+}
+
+static void	ft_readline_loop(t_root *r)
+{
+	if (get_line(r) != 0)
+		return ;
+	add_history(r->line);
+	handle_syntax(r->line, &r->exit_code);
+	if (r->exit_code)
+		return ;
+	tokenize_line(r);
+	if (r->exit_code != 0 || !r->token_lst)
+		return ;
+	if (build_tree(r) != 0)
+		return ;
+	if (r->tree->type == EXEC && ((t_exec *)r->tree)->argv
+		&& get_builtin(((t_exec *)r->tree)->argv->content))
+		execute_builtin_in_parent(r);
+	else
+	{
+		set_signal_pipeline();
+		run_pipeline(r);
+		set_signal_default();
+	}
 }
 
 static void	init_root(t_root *r, char **envp)
 {
 	r->line = NULL;
-	r->organized = NULL;
+	r->envp = (char **)ft_matrix_dup((void **)envp);
+	if (!r->envp)
+	{
+		perror("malloc");
+		exit(errno);
+	}
+	getcwd(r->tempfiles_dir, BUFFER_MAX_SIZE);
+	if (errno)
+	{
+		perror("getcwd");
+		ft_matrix_free((void ***)envp);
+		exit(errno);
+	}
+	ft_strlcat(r->tempfiles_dir, TEMPFILES_DIR, BUFFER_MAX_SIZE);
+	r->token_lst = NULL;
 	r->tree = NULL;
-	r->cp_status = 0;
-	r->envp = envp;
+	r->stoken = NULL;
+	r->exit_code = 0;
+	r->prev_exit_code = 0;
 }
 
 int	main(int argc, char **argv, char **envp)
@@ -66,38 +125,20 @@ int	main(int argc, char **argv, char **envp)
 	t_root	r;
 	
 	if (argc != 1)
-		return (ft_putstr_fd(LAUNCH_ERROR, 2), 0);
+		return (ft_putstr_fd(LAUNCH_ERROR, STDERR_FILENO), 0);
 	(void)argv;
 	init_root(&r, envp);
+	set_signal_default();
 	while (1)
-		errno = ft_readline_loop(&r);
-	return (errno);
-}
-
-void	close_temps(void)
-{
-	DIR	*tempdir;
-	struct dirent	*file;
-	char	*filename;
-	
-	tempdir = opendir(".tempfiles");
-	if (!tempdir)
-		exit(errno);
-	file = readdir(tempdir);
-	if (errno)
-		exit(errno);
-	while (file)
 	{
-		filename = ft_strjoin(".tempfiles/", file->d_name);
-		if (!filename)
-			exit(errno);
-		if ((file->d_name)[0] != '.')
-			unlink(filename);
-		free(filename);
-		file = readdir(tempdir);
-		if (errno)
-			exit(errno);
+		errno = 0;
+		ft_readline_loop(&r);
+		free(r.line);
+		if (close_temps(r.tempfiles_dir) != 0)
+		{
+			perror("close temps");
+			free_exit(&r, errno);
+		}
 	}
-	if (closedir(tempdir) != 0)
-		exit(errno);
+	return (0);
 }

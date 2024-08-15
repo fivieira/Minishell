@@ -5,69 +5,89 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/07 10:56:02 by fivieira          #+#    #+#             */
-/*   Updated: 2024/07/18 12:52:48 by ndo-vale         ###   ########.fr       */
+/*   Created: 2024/07/27 20:17:33 by ndo-vale          #+#    #+#             */
+/*   Updated: 2024/08/14 20:40:22 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-bool	is_end_cmd_builtin(t_cmd *tree)
-{
-	t_cmd	*ptr;
-	t_exec	*exec_node;
-
-	ptr = tree;
-	while (ptr->type == REDIR)
-	{
-		ptr = ((t_redir *)ptr)->cmd;
-	}
-	exec_node = (t_exec *)ptr;
-	if (exec_node->argv && get_builtin_func_i((char *)exec_node->argv->content) != -1)
-		return (true);
-	return (false);
-}
-
-builtin_ptr	get_builtin(int i)
-{
-	int     (*builtin_funcs[BUILTINS_AM + 1])(char **, char **);
-	
-	builtin_funcs[0] = &ft_echo;
-        builtin_funcs[1] = &ft_pwd;
-        builtin_funcs[2] = &ft_exit;
-        builtin_funcs[BUILTINS_AM] = NULL;
-        
-        return (builtin_funcs[i]);
-}
-
-int	get_builtin_func_i(char *cmd)
-{
-	char    *builtins[BUILTINS_AM + 1];
-	int		i;
-
-	i = -1;
-	builtins[0] = "echo";
-        builtins[1] = "pwd";
-        builtins[2] = "exit";
-        builtins[BUILTINS_AM] = NULL;
-	if (!cmd)
-		return (-1);
-	while (builtins[++i])
-		if (ft_strncmp(cmd, builtins[i], ft_strlen(builtins[i]) + 1) == 0)
-			return (i);
-	return (-1);
-}
-
-/*void	prtstr_env(char **array)
+int	is_key_valid(char *key)
 {
 	int	i;
 
-	if (array == NULL)
-		return ;
-	i = -1;
-	while (array[++i] != NULL)
+	i = 0;
+	if (!ft_isalpha(key[i]) && key[i] != '_')
+		return (0);
+	while (key[++i] && key[i] != '=')
 	{
-		if (ft_strchr(array[i], '='))
-			ft_printf("%s\n", array[i]);
+		if (!ft_isalnum(key[i]) && key[i] != '_')
+			return (0);
 	}
-}*/
+	return (1);
+}
+
+int	get_envp_i(char *key, char **envp)
+{
+	int	i;
+	int	key_len;
+
+	key_len = ft_strlen(key);
+	if (!is_key_valid(key))
+		return (-1);
+	i = -1;
+	while (envp[++i])
+	{
+		if (ft_strncmp(envp[i], key, key_len) == 0)
+			return (i);
+	}
+	return (-1);
+}
+
+void	delete_var(char *var, char **envp)
+{
+	int	var_i;
+
+	var_i = get_envp_i(var, envp);
+	if (var_i >= 0)
+	{
+		free(envp[var_i]);
+		while (envp[++var_i])
+			envp[var_i - 1] = envp[var_i];
+		envp[var_i - 1] = NULL;
+	}
+}
+
+t_builtin	get_builtin(char *cmd)
+{
+	static char	*builtins[BUILTINS_AM + 1] = {
+		"echo", "cd", "pwd", "export", "unset",
+		"env", "exit", NULL};
+	static int	(*builtin_funcs[BUILTINS_AM + 1])(char **, char ***) = {
+		&ft_echo, &ft_cd, &ft_pwd, &ft_export, &ft_unset,
+		&ft_env, &ft_exit, NULL};
+	int			i;
+
+	i = -1;
+	if (!cmd)
+		return (NULL);
+	while (builtins[++i])
+	{
+		if (ft_strncmp(cmd, builtins[i], ft_strlen(builtins[i]) + 1) == 0)
+			return (builtin_funcs[i]);
+	}
+	return (NULL);
+}
+
+int	run_builtin(t_list *argv_lst, char ***envp)
+{
+	char	**args;
+	int		status;
+
+	args = create_args(argv_lst);
+	if (!args)
+		return (errno);
+	status = get_builtin(args[0])(args, envp);
+	ft_matrix_free((void ***)&args);
+	return (status);
+}

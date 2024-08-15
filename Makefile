@@ -3,40 +3,43 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+         #
+#    By: ndo-vale <ndo-vale@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/05/21 15:06:49 by ndo-vale          #+#    #+#              #
-#    Updated: 2024/07/22 23:53:52 by fivieira         ###   ########.fr        #
+#    Created: 2024/07/24 13:00:14 by ndo-vale          #+#    #+#              #
+#    Updated: 2024/08/08 18:11:57 by ndo-vale         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	= minishell
 CC	= cc
-CFLAGS	= -Wall -Werror -Wextra -g 
+CFLAGS	= -Wall -Werror -Wextra -g
 IFLAGS	= -I/usr/include/readline
 LDFLAGS	= -L/usr/lib -lreadline
 RM	= rm -rf
 
-SRC_DIR		= src/
-OBJ_DIR		= obj/
+SRC_DIR	= src/
+OBJ_DIR	= obj/
 
-SRCS		= $(addprefix $(SRC_DIR), main.c constructors.c free_tree.c exit.c exit_utils.c\
-					tokenizer.c tokenlst_helpers.c 	tokenizer_helpers.c \
-					tree_builder.c tree_executer.c tree_helpers.c \
-					command_helpers.c signals.c signals_handlers.c \
-					heredoc.c builtins/ft_echo.c builtins/ft_exit.c\
-					builtins/ft_pwd.c builtins/builtins_utils.c \
-					builtins/exec_builtins.c builtins/export/ft_getenv.c \
-					builtins/env.c)
-					
-#				continue to implement			
-
-OBJS		= $(SRCS:$(SRC_DIR)%.c=$(OBJ_DIR)%.o)
+SRCS	= $(addprefix $(SRC_DIR), main.c main_helpers.c free_exit.c signals.c \
+			signal_handlers.c handle_syntax.c handle_syntax_utils.c \
+	  		general_helpers.c ft_free_everything_exit.c \
+	  		$(addprefix tokenizer/, tokenize_line.c tokenize_line2.c \
+			tokenizer_parsers.c tokenizer_exit_free.c) \
+			tokenlst_helpers.c get_env_value.c \
+			$(addprefix tree_builder/, build_tree.c free_tree.c \
+			node_constructors.c) \
+			$(addprefix heredoc/, set_heredocs.c heredoc.c \
+			heredoc_helpers.c create_heredoc_file.c tempfiles_folder.c \
+			get_env_value_hd.c) \
+			$(addprefix tree_executer/, execute_node.c command_helpers.c \
+			execute_node_helpers.c execute_node_extras.c) \
+			$(addprefix builtins/, builtins_utils.c export_helpers.c \
+			ft_echo.c ft_cd.c ft_pwd.c ft_export.c ft_unset.c ft_env.c \
+			ft_exit.c))
+OBJS	= $(SRCS:$(SRC_DIR)%.c=$(OBJ_DIR)%.o)
 
 LIBFT_DIR	= ./libft
 LIBFT		= $(LIBFT_DIR)/libft.a
-
-MAKE = make -C
 
 all: $(NAME)
 
@@ -48,8 +51,11 @@ $(NAME): $(OBJS) $(LIBFT)
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c
 	@mkdir -p obj
+	@mkdir -p obj/tokenizer
+	@mkdir -p obj/tree_builder
 	@mkdir -p obj/builtins
-	@mkdir -p obj/builtins/export
+	@mkdir -p obj/tree_executer
+	@mkdir -p obj/heredoc
 	@mkdir -p .tempfiles
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
@@ -63,4 +69,8 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+valgrind:
+	valgrind --leak-check=full --show-leak-kinds=all --suppressions=sup_readline.supp --track-origins=yes --track-fds=yes ./minishell
+
+
+.PHONY: all clean fclean re 

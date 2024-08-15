@@ -1,27 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_pwd.c                                           :+:      :+:    :+:   */
+/*   export_helpers.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/28 10:20:39 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/08/01 16:11:22 by fivieira         ###   ########.fr       */
+/*   Created: 2024/08/05 20:09:41 by ndo-vale          #+#    #+#             */
+/*   Updated: 2024/08/14 21:58:33 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-int	ft_pwd(char **argv, char ***envp)
+int count_envs(char **envp)
 {
-	char	*cwd;
+	int count;
 
-	(void)argv;
-	(void)envp;
-	cwd = getcwd(NULL, 0);
-	if (!cwd)
-		return (errno);
-	ft_printf("%s\n", cwd);
-	free(cwd);
-	return (0);
+	count = 0;
+	while (envp[count])
+		count++;
+	return (count);
+}
+
+int	fill_new_envp(char **new, char ***old_ref)
+{
+	char	**old;
+	int		i;
+
+	old = *old_ref;
+	i = -1;
+	while (old[++i])
+		new[i] = old[i];
+	return (i);
 }

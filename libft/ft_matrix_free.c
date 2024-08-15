@@ -1,34 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strdup.c                                        :+:      :+:    :+:   */
+/*   ft_matrix_free.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/11 12:47:11 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/04/11 13:02:54 by ndo-vale         ###   ########.fr       */
+/*   Created: 2024/06/05 11:27:58 by ndo-vale          #+#    #+#             */
+/*   Updated: 2024/07/24 14:26:08 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-char	*ft_strdup(const char *s)
+void	ft_matrix_free(void ***matrix)
 {
-	char	*ptr;
-	size_t	size;
-	size_t	i;
+	int	i;
 
-	if (!s)
-		return (NULL);
-	size = ft_strlen(s);
-	ptr = (char *)malloc((size + 1) * sizeof(char));
-	if (ptr == NULL)
-		return (NULL);
-	i = 0;
-	while (i < size + 1)
-	{
-		ptr[i] = s[i];
-		i++;
-	}
-	return (ptr);
+	if (!*matrix)
+		return ;
+	i = -1;
+	while ((*matrix)[++i])
+		free((*matrix)[i]);
+	free(*matrix);
+	*matrix = NULL;
 }

@@ -5,219 +5,268 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/20 19:22:19 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/07/23 18:19:44 by ndo-vale         ###   ########.fr       */
+/*   Created: 2024/07/24 13:30:43 by ndo-vale          #+#    #+#             */
+/*   Updated: 2024/08/14 21:03:46 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-# include <stdio.h> //for printf
-# include <readline/readline.h> // for rl library
-# include <readline/history.h> // for rl history functionality
-# include <errno.h> // for error handeling
-# include <sys/wait.h> // for waiting for child processes
-# include <dirent.h> // for accessing directories
-# include "../libft/libft.h"
-# include "./tree_builder.h"
-# include <stdbool.h>
-# include <signal.h>
-# include <fcntl.h>
-# include <unistd.h>
-# include <limits.h>
+// INCLUDES
+# include <readline/readline.h> // readline
+# include <readline/history.h>
+# include <errno.h> // error codes
+# include <signal.h> // signals
+# include <sys/wait.h> // wait for child process
+# include <fcntl.h> // file manipulation
+# include <dirent.h> // folder manipulation
+# include "../libft/libft.h" // libft
 
-# define PROMPT "REPLACE WITH CURRENT WORKING DIR: "
-# define LAUNCH_ERROR "Launch error\n"
-# define CTRLD_EXIT_MSG "exit\n"
-# define CTRLD_HEREDOC_MSG "warning: here-document delimited by end-of-file\n"
-# define FORK_ERROR "fork\n"
-# define SYNTAX_ERROR "Syntax error\n"
+// MESSAGES
+# define LAUNCH_ERROR "minishell does not accept extra options. \
+Please launch it without arguments.\n"
+# define TEMPFILES_DIR "/.tempfiles/"
+# define PROMPT "Enter your command: "
+# define CTRD_EXIT_MSG "exit\n"
+# define SYNTAX_ERROR "syntax error near unexpected token `"
+# define SYNTAX_ERROR_END "syntax error near unexpected token `newline'\n"
+# define CORE_DUMP_MSG "Quit (core dumped)\n"
+# define CMD_NOT_FOUND_MSG ": command not found"
+# define PERMISSION_DENIED_MSG ": permission denied"
 
-# define BUILTINS_AM 3
+// CODES
+# define CTRLC_SIGNO 2
+# define SYNTAX_ERROR_CODE 2
 
-// characher sets for token delimitation
-# define WHITESPACE " \t\r\n\v"
-# define TOKEN_DELIMS " <>|$"
-
-// Flags for input cleaning
-# define F_OPEN_SINGLE 0
-# define F_OPEN_DOUBLE 1
-# define F_PIPE 2
-# define F_SPACE 3
-
-// Types of nodes
-# define EXEC 0
-# define REDIR 1
+// TYPES OF NODES
+# define REDIR 0
+# define EXEC 1
 # define PIPE 2
 
-extern int g_signo;
+// MISCELLANEOUS DEFINES
+# define BUFFER_MAX_SIZE 1024
+# define SPACES " \t\n\v\f\r"
+# define TOKEN_CHARS "<>|"
+# define REDIR_TYPES "<>+-_"
+# define SET 0
+# define GET 1
+# define BUILTINS_AM 7
+# define ENVP_FILENAME "/env_filename_because_we_gotta_find_the\
+_dumbest_ways_to_get_around_this_damn_subject"
 
-typedef int (*builtin_ptr)(char **, char **);
 
-//General struct that can be typecasted into any node type
-typedef struct s_cmd
+
+
+
+
+//TEST
+void	signal_handler_pipeline_childs(int signo);
+
+
+
+
+// STRUCTS
+// Syntax handler
+typedef struct s_flags
+{
+	int	sq;
+	int	dq;
+	int	prev;
+}	t_flags;
+
+// Tokenizer
+typedef struct s_token
+{
+	char			type;
+	char			*content;
+	struct s_token	*next;
+}	t_token;
+
+typedef struct s_tokenizer_data
+{
+	//t_token	*token_lst;
+	char	*ptr;
+	char	type;
+	//char	*stoken;
+	int		status;
+}	t_tokenizer_data;
+
+// Tree builder
+typedef struct s_node
 {
 	int	type;
-}	t_cmd;
+}	t_node;
+
+typedef struct s_redir
+{
+	int				type;
+	char			*file;
+	char			redir_type;
+	struct s_redir	*next;
+}	t_redir;
 
 typedef struct s_exec
 {
 	int		type;
 	t_list	*argv;
-	char	**envp;
+	t_redir	*redirs;
 }	t_exec;
-
-typedef struct s_redir
-{
-	int		type;
-	t_cmd	*cmd;
-	char	*file;
-	char	redir_type;
-	int		mode;
-	int		fd;
-}	t_redir;
 
 typedef struct s_pipe
 {
 	int		type;
-	t_cmd	*left;
-	t_cmd	*right;
+	t_node	*left;
+	t_node	*right;
 }	t_pipe;
 
-typedef struct s_localenv
-{
-	char	**content;
-	char	**sort;
-}	t_localenv;
-
+// Root struct
 typedef struct s_root
 {
-	char	*line;
-	char	**envp;
-	t_token	*organized;
-	t_cmd	*tree;
-	pid_t	cpid;
-	int		cp_status;
+	char		*line;
+	char		**envp;
+	char		*stoken;
+	t_token		*token_lst;
+	t_node		*tree;
+	int			exit_code;
+	int			prev_exit_code;
+	char		tempfiles_dir[BUFFER_MAX_SIZE];
 }	t_root;
 
-// EXIT.C
-int   exit_code(int code);
-void	tokenizer_exit(char *line, t_tokenizer_data *td);
-// Cleanly frees the provided 'line' and all tokenizer_data and exits. 
-void	tree_builder_exit(t_root *r, int exit_code, char *error_msg);
-// Cleanly frees all data present in 'r', prints the error message
-// according to errno if error_msg is not NULL and exits with 'exit_code'.
+typedef int	(*t_builtin)(char **, char ***);
 
-// FREE_TREE.C
-void	ft_free_tree(t_cmd *node);
-// Cleanly frees all data present in the tree with the head 'node'.
+// FREE_EVERYTHING_EXIT.C
+void    free_everything_exit(t_root *r, int exit_code);
+void	exit_with_standard_error(t_root *r, char *msg, int exit_code, int allocated);
+void    exit_with_custom_error(t_root *r, char *origin, char *msg, int exit_code);
+void	free_root(t_root *r);
+//Returns if func was successful.
+int		ft_print_error(char *msg);
+char	*ft_build_error_msg(char *origin, char *msg);
 
-// tokenlst_helpers.c
-t_token	*ft_tokennew(char type, char *content);
-t_token	*ft_tokenlast(t_token *token);
-void	ft_tokenadd_back(t_token **token, t_token *new);
-int		ft_token_createadd(t_token **tokenlst, char type, char *tokenstr);
-void	ft_free_tokenlst(t_token *tokenlst, bool free_content);
+// MAIN_HELPERS.C
+int			get_line(t_root *r);
 
-// CPNSTRUCTORS.C
-t_cmd	*exec_cmd(char **envp);
-// Builds an exec node and returns it as t_cmd (or NULL in case of error).
-t_cmd	*pipe_cmd(t_cmd *left, t_cmd *right);
-// Builds a pipe node and returns it as t_cmd (or NULL in case of error).
-t_cmd	*redir_cmd(t_cmd *cmd, char *file, int mode, int fd);
-// Receives a cmd which is a linked list of redir nodes
-// finished by an exec node.
-// Builds a new redir node and places it between
-// the last redir and the exec nodes.
-// Returns the HEAD of the list (or NULL in case of error).
+// FREE_EXIT.C
+//void		exit_from_te(t_root *r, char *msg, int exit_code);
+void		free_exit(t_root *r, int exit_code);
+int			close_temps(char *tempfiles_dir);
 
-//TOKENIZER.C
-int		update_token(char **token, char *start, int size);
-// Takes an existing 'token' and appends to it 'size' bytes 
-// of a strig pointed by 'start'.
-// Returns 0 if successful. In case of error, 'token' is freed 
-// and set to NULL, and 1 is returned.
-int		get_quoted(char **cmd, char **token, t_root *);
-// Appends to 'token' the quoted string pointed by 'cmd'
-// which starts with quote type 'c'.
-// Returns 0 if successful, 1 if there is an error. 
-// If error comes from malloc, 'token' becomes NULL.
-int		parse_spaces(t_tokenizer_data *td);
-//Parses space present in cmd. Returns 0 on Success, 1 on Error.
-t_token	*tokenizer(t_root *r);
+// SIGNALS.C
+void		signal_handler_default(int signo);
+void		signal_handler_pipeline(int signo);
+void		set_signal_heredoc(void);
+void		set_signal_default(void);
+void		set_signal_pipeline(void);
+int			setget_signo(int action, int ntoset);
 
-// tokenizer_helpers.c
-int		parse_spaces(t_tokenizer_data *td);
-void	parse_redirs(t_tokenizer_data *td);
-int		parse_redirs_pipes(t_tokenizer_data *td);
+// HANDLE_SYNTAX.C
+void			handle_syntax(char *ptr, int *exit_code);
 
-// TREE_BUILDER.C
-void	tree_builder(t_root *r);
+// HANDLE_SYNTAX_UTILS.C
+void		init_flags(t_flags *f);
+void		print_syntax_error(char c);
+
+// TOKENIZE_LINE.C
+void		tokenize_line(t_root *r);
+
+// TOKENIZE_LINE2.C
+int			update_token(char **token, char *start);
+int			tokenize_env(t_root *r, t_tokenizer_data *td, char *env_value);
+char		*expand_cmd_env(t_tokenizer_data *td, t_root *r);
+
+// TOKENIZER_PARSERS.C
+void		parse_quotes(t_tokenizer_data *td, t_root *r, char c);
+void		parse_redirs_pipes(t_tokenizer_data *td, t_root *r);
+void		parse_spaces(t_tokenizer_data *td, t_root *r);
+
+// TOKENIZER_EXIT_FREE.C
+//void		free_tokenizer(t_tokenizer_data *td);
+//void		exit_from_tokenizer(t_tokenizer_data *td, t_root *r,
+//				char *msg, int exit_code);
+
+// GET_ENV_VALUE.C
+int			get_env_key_len(char *start);
+char		*get_env_key(char *start);
+char		*get_env_value(char *start, char **envp);
+void		update_env(char *name, char *value, char ***envp);
+
+// TOKENLST_HELPERS.C
+t_token		*tokennew(char type, char *content);
+t_token		*tokenlast(t_token *token);
+void		tokenadd_back(t_token **token, t_token *new);
+int			token_createadd(t_token **tokenlst, char type, char *tokenstr);
+void		free_tokenlst(t_token **tokenlst);
+
+// BUILD_TREE.C
+int			build_tree(t_root *r);
+
+// NODE_CONSTRUCTORS.C
+t_redir		*create_redir(char *file, char redir_type);
+t_exec		*create_exec(void);
+t_pipe		*create_pipe(t_node *left, t_node *right);
+
+// SET_HEREDOCS.C
+int			set_heredocs(t_node *node, t_root *r);
 
 // HEREDOC.C
-int		set_heredocs(t_cmd *cmd, t_root *r, int *status);
-// Creates all heredocs present in the tree 'cmd', 
+char		*heredoc(char *eof, t_root *r, char hd_type);
 
-// TREE_EXECUTER.C
-void	run_cmd(t_cmd *cmd, t_cmd *start);
-void	run_redir(t_redir *cmd, t_cmd *start);
-char    **create_args(t_list *argv, bool);
+// HEREDOC_HELPERS.C
+int			get_next_rn(void);
+char		*find_and_expand(char *line);
 
-// tree_helpers.c
-int		get_next_rn(void);
+// CREATE_HEREDOC_FILE.C
+void		create_heredoc_file(char *filename, char *eof, char hd_type);
 
-//command_helpers.c
-char	*validate_cmd(char *cmd, char **env);
-// Tries to find the given 'cmd' in the provided path present in 'env'.
-// Returns the path to the command binary if the command could be found.
-// Returns the allocated str "INVALID" if the command could not be found.
-// Returns NULL if there were any errors (with errno set).
+// GET_ENV_VALUE_HD.C
+char		*get_env_value_hd(char *start);
+int			create_envp_file(void);
 
-// exec_builtins.c
-int    find_exec_builtin(char **args, char **envp, t_cmd *tree);
-void    builtin_redir(t_redir *cmd, t_cmd *start);
-int	exec_parent_builtin(t_cmd *tree);
+// FREE_TREE.C
+void		free_tree(t_node **tree);
 
-// builtins_utils.c
-bool	is_end_cmd_builtin(t_cmd *tree);
-int	get_builtin_func_i(char *cmd);
-builtin_ptr	get_builtin(int i);
+// EXECUTE_NODE.C
+char		**create_args(t_list *argv);
+int			execute_redirs(t_redir *node, t_root *r);
+void		execute_node(t_node *node, t_root *r);
+void		apply_pipe_and_execute(t_node *node, t_root *r, int *p,
+			int multipurp_fd);
+void		failed_execve_aftermath(char *cmd_path, char **args, t_root *r);
 
-// ft_echo.c
-int	ft_echo(char **msg, char **envp);
+//EXECUTE_NODE_HELPERS.C
+int			get_redir_mode(char type);
+int			get_redir_fd(char type);
+void		close_pipe(int *p);
+void		close_pipe_and_exit(int *p, t_root *r, char *msg);
+void		try_running_builtin(t_exec *node, t_root *r);
 
-// ft_pwd.c
-int	ft_pwd(char **argv, char **envp);
+// COMMAND_HELPERS.C
+char		*validate_cmd(char *cmd, char **env);
+char		**create_args(t_list *argv);
 
-// ft_exit.c
-int	ft_exit(char **argv, char **envp);
+// BUILTIN_UTILS.C
+int			run_builtin(t_list *argv_lst, char ***envp);
+t_builtin	get_builtin(char *cmd);
+void		delete_var(char *var, char **envp);
+int			get_envp_i(char *key, char **envp);
+int			is_key_valid(char *key);
+//int			verify_getcwd(char *cwd, size_t size);
+//int			verify_change_dir(char *dir);
+int			count_envs(char **envp);
+int			fill_new_envp(char **new, char ***old_ref);
 
-// export.c
-int		ft_getenv(const char *name, char **value, char **envp);
-// Searches for the envvar 'name' in 'envp' and saves its value in 'value'.
-// Returns 1 if any error occured, 0 otherwise.
-// 'value' is set to NULL in case of error or if 'name' was not found in 'envp'.
-int		ft_expand_env(char **cmd, char **token, t_root *r);
-// Takes a pointer to the '$' character of a string searches for the 
-// subconsequent var in 'envp' and updates 'token' accordingly.
-// 'cmd' is updated to point at the charecter 
-// after the last one from the searched var.
-// Returns 0 if successful (which includes the case where 
-// the var was not found, in which case 'token' is left as is).
-// Returns an error number otherwise.
-bool	isvar_valid(const char *name);
-int		find_variable_index_recursive(const char *name, char **env, int i);
+// BUILTINS
+int			ft_echo(char **argv, char ***envp);
+int			ft_cd(char **argv, char ***envp);
+int			ft_pwd(char **argv, char ***envp);
+int			ft_export(char **argv, char ***envp);
+int			ft_unset(char **argv, char ***envp);
+int			ft_env(char **argv, char ***envp);
+int			ft_exit(char **argv, char ***envp);
+void		ft_exit_parent(t_root *r, t_exec *node);
+void		ft_exit_pipeline(t_root *r, t_exec *node);
 
-//signals
-void	sigint_handler(int signo);
-void	update_status_sigint(int signo);
-void	update_status_sigquit(int signo);
-void	sigint_handler(int signo);
-void	sigquit_handler(int signo);
-void	handle_sigint_status(void);
-void	set_sig_default(void);
-void	set_sig_new(void);
-void	set_sig_function(void);
-
+// export
+void set_env_var(char *key, char *value, char **envp);
 #endif

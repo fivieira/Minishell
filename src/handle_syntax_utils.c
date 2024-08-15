@@ -1,27 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_pwd.c                                           :+:      :+:    :+:   */
+/*   handle_syntax_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/28 10:20:39 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/08/01 16:11:22 by fivieira         ###   ########.fr       */
+/*   Created: 2024/08/02 16:07:40 by fivieira          #+#    #+#             */
+/*   Updated: 2024/08/02 16:08:23 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/minishell.h"
+#include "../include/minishell.h"
 
-int	ft_pwd(char **argv, char ***envp)
+void	init_flags(t_flags *f)
 {
-	char	*cwd;
+	f->sq = 0;
+	f->dq = 0;
+	f->prev = PIPE;
+}
 
-	(void)argv;
-	(void)envp;
-	cwd = getcwd(NULL, 0);
-	if (!cwd)
-		return (errno);
-	ft_printf("%s\n", cwd);
-	free(cwd);
-	return (0);
+void	print_syntax_error(char c)
+{
+	ft_putstr_fd(SYNTAX_ERROR, 2);
+	ft_putchar_fd(c, 2);
+	ft_putstr_fd("\'\n", 2);
 }
