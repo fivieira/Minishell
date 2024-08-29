@@ -6,7 +6,7 @@
 /*   By: ndo-vale <ndo-vale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/04 19:05:25 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/08/08 18:00:40 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/08/19 23:35:17 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ int	token_createadd(t_token **tokenlst, char type, char *tokenstr)
 
 void	free_tokenlst(t_token **tokenlst)
 {
-	t_token *node;
+	t_token	*node;
 	t_token	*tmp;
 
 	node = *tokenlst;

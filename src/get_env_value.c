@@ -6,7 +6,7 @@
 /*   By: ndo-vale <ndo-vale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/25 19:25:26 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/08/13 11:14:41 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/08/19 21:30:02 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,10 +63,11 @@ char	*get_env_value(char *start, char **envp)
 	return (NULL);
 }
 
-void	update_env(char *name, char *value, char ***envp)
+int	update_env(char *name, char *value, char ***envp)
 {
 	int		i;
 	size_t	len;
+	char	*new_envp;
 
 	i = 0;
 	len = ft_strlen(name);
@@ -74,11 +75,15 @@ void	update_env(char *name, char *value, char ***envp)
 	{
 		if (ft_strncmp(name, (*envp)[i], len) == 0 && (*envp)[i][len] == '=')
 		{
-			free((*envp)[i]);
-			(*envp)[i] = ft_strjoin_free(ft_strjoin(name, "="),
+			new_envp = ft_strjoin_free(ft_strjoin(name, "="),
 					ft_strdup(value));
-			return ;
+			if (!new_envp)
+				return (-1);
+			free((*envp)[i]);
+			(*envp)[i] = new_envp;
+			return (0);
 		}
 		i++;
 	}
+	return (0);
 }

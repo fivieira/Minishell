@@ -6,49 +6,26 @@
 /*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 20:17:33 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/08/14 20:40:22 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/08/20 00:28:04 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-int	is_key_valid(char *key)
+int	is_option(char *arg)
 {
-	int	i;
-
-	i = 0;
-	if (!ft_isalpha(key[i]) && key[i] != '_')
+	if (!arg)
 		return (0);
-	while (key[++i] && key[i] != '=')
-	{
-		if (!ft_isalnum(key[i]) && key[i] != '_')
-			return (0);
-	}
-	return (1);
+	if (arg[0])
+		return (arg[0] == '-' && arg[1]);
+	return (0);
 }
 
-int	get_envp_i(char *key, char **envp)
-{
-	int	i;
-	int	key_len;
-
-	key_len = ft_strlen(key);
-	if (!is_key_valid(key))
-		return (-1);
-	i = -1;
-	while (envp[++i])
-	{
-		if (ft_strncmp(envp[i], key, key_len) == 0)
-			return (i);
-	}
-	return (-1);
-}
-
-void	delete_var(char *var, char **envp)
+void	delete_var(char *key, char **envp)
 {
 	int	var_i;
 
-	var_i = get_envp_i(var, envp);
+	var_i = get_envp_i_from_key(key, envp);
 	if (var_i >= 0)
 	{
 		free(envp[var_i]);

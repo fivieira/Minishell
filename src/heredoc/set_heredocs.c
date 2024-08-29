@@ -6,7 +6,7 @@
 /*   By: ndo-vale <ndo-vale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/30 19:18:31 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/08/13 14:58:30 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/08/19 23:16:12 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,8 @@ static int	find_heredoc_in_redirs(t_node *node, t_root *r)
 	{
 		if (redir_node->redir_type == '-' || redir_node->redir_type == '_')
 		{
-			redir_node->file = heredoc(redir_node->file, r, redir_node->redir_type);
+			redir_node->file = heredoc(redir_node->file,
+					r, redir_node->redir_type);
 			if (!redir_node->file)
 				return (r->exit_code);
 		}

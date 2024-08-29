@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_echo.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ndo-vale <ndo-vale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 10:10:48 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/08/01 16:06:30 by fivieira         ###   ########.fr       */
+/*   Updated: 2024/08/18 15:17:33 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ static int	is_n(char *arg)
 	if (*arg != '-')
 		return (0);
 	arg += 1;
+	if (!*arg)
+		return (0);
 	while (*arg)
 	{
 		if (*arg != 'n')

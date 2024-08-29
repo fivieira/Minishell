@@ -6,7 +6,7 @@
 /*   By: ndo-vale <ndo-vale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/05 21:28:37 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/08/13 11:45:45 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/08/19 23:57:01 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,15 +30,10 @@ int	get_redir_fd(char type)
 		return (1);
 }
 
-void	close_pipe(int *p)
+void	close_pipe_and_exit(int *p, t_root *r, char *msg)
 {
 	close(p[0]);
 	close(p[1]);
-}
-
-void	close_pipe_and_exit(int *p, t_root *r, char *msg)
-{
-	close_pipe(p);
 	exit_with_standard_error(r, msg, errno, 0);
 }
 

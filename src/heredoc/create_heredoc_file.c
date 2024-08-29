@@ -6,11 +6,23 @@
 /*   By: ndo-vale <ndo-vale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/30 18:27:53 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/08/13 12:46:11 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/08/20 00:14:44 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
+
+static char	*safe_expand_line(char *line, int fd)
+{
+	line = find_and_expand(line);
+	if (!line && errno)
+	{
+		perror("envp expansion");
+		close(fd);
+		exit(errno);
+	}
+	return (line);
+}
 
 static void	get_heredoc_lines(char *eof_lit, int fd, char hd_type)
 {
@@ -20,15 +32,7 @@ static void	get_heredoc_lines(char *eof_lit, int fd, char hd_type)
 	while (line && ft_strncmp(line, eof_lit, ft_strlen(eof_lit) + 1) != 0)
 	{
 		if (hd_type == '-')
-		{
-			line = find_and_expand(line);
-			if (!line && errno)
-			{
-				perror("envp expansion");
-				close(fd);
-				exit(errno);
-			}
-		}
+			line = safe_expand_line(line, fd);
 		if (line)
 			write(fd, line, ft_strlen(line));
 		write(fd, "\n", 1);

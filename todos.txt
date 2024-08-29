@@ -1,9 +1,0 @@
-cd:
-        -* is returning the wrong error and exit code
-
-export: +=
-        temp can be assigned but not vice-versa
-
-Maybe: SHLVL
-Maybe: minishell inside minishell prints an extra \n when SIGINT?? (sig in older shells prints \n)
-Maybe: cd ~

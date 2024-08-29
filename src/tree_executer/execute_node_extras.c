@@ -6,11 +6,35 @@
 /*   By: ndo-vale <ndo-vale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/06 10:09:15 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/08/09 13:04:13 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/08/19 23:56:32 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
+
+int	redirect(t_redir *node, t_root *r)
+{
+	int	fd;
+
+	fd = open(node->file, get_redir_mode(node->redir_type), 0644);
+	if (fd == -1)
+	{
+		if (errno == 2)
+		{
+			r->exit_code = 1;
+			perror(node->file);
+			return (-1);
+		}
+		exit_with_standard_error(r, node->file, 1, 0);
+	}
+	if (dup2(fd, get_redir_fd(node->redir_type)) < 0)
+	{
+		close(fd);
+		exit_with_standard_error(r, "dup", errno, 0);
+	}
+	close(fd);
+	return (0);
+}
 
 void	apply_pipe_and_execute(t_node *node, t_root *r, int *p,
 		int multipurp_fd)
@@ -28,7 +52,7 @@ void	apply_pipe_and_execute(t_node *node, t_root *r, int *p,
 
 void	failed_execve_aftermath(char *cmd_path, char **args, t_root *r)
 {
-	int	status;
+	int		status;
 	char	*cmd;
 
 	cmd = ft_strdup(args[0]);

@@ -1,25 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_free_matrix.c                                   :+:      :+:    :+:   */
+/*   ft_swap.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndo-vale <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: fivieira <fivieira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/05 11:27:58 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/06/05 11:30:56 by ndo-vale         ###   ########.fr       */
+/*   Created: 2024/08/19 22:16:11 by fivieira          #+#    #+#             */
+/*   Updated: 2024/08/20 00:43:11 by fivieira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void	ft_free_matrix(void **matrix)
+void	ft_swap(char **a, char **b)
 {
-	int	i;
+	char	*temp;
 
-	if (!matrix)
-		return ;
-	i = -1;
-	while (matrix[++i])
-		free(matrix[i]);
-	free(matrix);
+	temp = *a;
+	*a = *b;
+	*b = temp;
 }

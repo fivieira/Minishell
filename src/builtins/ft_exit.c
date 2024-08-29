@@ -6,7 +6,7 @@
 /*   By: ndo-vale <ndo-vale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 10:22:49 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/08/13 11:49:19 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/08/26 17:21:29 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ int	ft_exit(char **argv, char ***envp)
 static int	get_exit_code_from_arg(char *arg)
 {
 	int	i;
-	
+
 	i = 0;
 	if (!ft_isdigit(arg[i]) && arg[i] != '-' && arg[i] != '+')
 		return (-1);
@@ -32,7 +32,10 @@ static int	get_exit_code_from_arg(char *arg)
 		if (!ft_isdigit(arg[i]))
 			return (-1);
 	}
-	return (ft_atoi(arg) % 255);
+	i = ft_atoi(arg);
+	if (i == -1)
+		i += 256;
+	return (i);
 }
 
 static int	parse_exit_arguments(t_root *r, char **args)
@@ -42,16 +45,16 @@ static int	parse_exit_arguments(t_root *r, char **args)
 	if (args[1])
 	{
 		exit_code = get_exit_code_from_arg(args[1]);
-		
 		if (exit_code == -1)
 		{
 			ft_matrix_free((void ***)&args);
-			exit_with_standard_error(r, "exit: numeric arguments required", 2, 0);
+			exit_with_standard_error(r, "exit: numeric arguments required",
+				2, 0);
 		}
 		if (args[2])
 		{
-			ft_matrix_free((void ***)&args);
-			return(ft_print_error("exit: too many arguments"), 1);
+			ft_matrix_free((void ***) &args);
+			return (ft_print_error("exit: too many arguments"), 1);
 		}
 		ft_matrix_free((void ***)&args);
 		free_everything_exit(r, exit_code);

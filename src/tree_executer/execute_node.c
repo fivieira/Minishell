@@ -6,7 +6,7 @@
 /*   By: ndo-vale <ndo-vale@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/28 14:43:14 by ndo-vale          #+#    #+#             */
-/*   Updated: 2024/08/13 20:24:08 by ndo-vale         ###   ########.fr       */
+/*   Updated: 2024/08/21 18:31:42 by ndo-vale         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 
 int	execute_redirs(t_redir *node, t_root *r)
 {
-	int	fd;
-
 	while (node)
 	{
 		if (!node->file)
@@ -24,23 +22,8 @@ int	execute_redirs(t_redir *node, t_root *r)
 			r->exit_code = 1;
 			return (-1);
 		}
-		fd = open(node->file, get_redir_mode(node->redir_type), 0644);
-		if (fd == -1)
-		{
-			if (errno == 2)
-			{
-				r->exit_code = 1;
-				perror(node->file);
-				return (-1);
-			}
-			exit_with_standard_error(r, node->file, 1, 0); // Should return with -1 if file not found!
-		}
-		if (dup2(fd, get_redir_fd(node->redir_type)) < 0)
-		{
-			close(fd);
-			exit_with_standard_error(r, "dup", errno, 0);
-		}
-		close(fd);
+		if (redirect(node, r) != 0)
+			return (-1);
 		node = node->next;
 	}
 	return (0);
@@ -62,7 +45,7 @@ void	execute_exec(t_exec *node, t_root *r)
 	if (args[0] && args[0][0] == '\0')
 	{
 		ft_matrix_free((void ***)&args);
-		exit_with_custom_error(r, strdup("\'\'"), CMD_NOT_FOUND_MSG, 127);
+		exit_with_custom_error(r, ft_strdup("\'\'"), CMD_NOT_FOUND_MSG, 127);
 	}
 	cmd_path = validate_cmd(args[0], r->envp);
 	if (!cmd_path)
@@ -72,6 +55,20 @@ void	execute_exec(t_exec *node, t_root *r)
 	}
 	execve(cmd_path, args, r->envp);
 	failed_execve_aftermath(cmd_path, args, r);
+}
+
+static void	treat_pipe_aftermath(t_root *r, int status)
+{
+	if (WIFEXITED(status))
+		free_everything_exit(r, WEXITSTATUS(status));
+	else if (WIFSIGNALED(status))
+	{
+		if (WTERMSIG(status) == SIGINT)
+			write(2, "\n", 1);
+		free_everything_exit(r, 128 + WTERMSIG(status));
+	}
+	else
+		exit_with_standard_error(r, "something unexpected occured\n", 1, 0);
 }
 
 void	execute_pipe(t_pipe *node, t_root *r)
@@ -93,17 +90,13 @@ void	execute_pipe(t_pipe *node, t_root *r)
 		close_pipe_and_exit(p, r, "fork");
 	else if (cpid_r == 0)
 		apply_pipe_and_execute(node->right, r, p, 0);
-	close_pipe(p);
+	close(p[0]);
+	close(p[1]);
 	free_tree(&r->tree);
 	free_root(r);
 	waitpid(cpid_l, &status, 0);
 	waitpid(cpid_r, &status, 0);
-	if (WIFEXITED(status))
-		free_everything_exit(r, WEXITSTATUS(status));
-	else if (WIFSIGNALED(status))
-		free_everything_exit(r, 128 + WTERMSIG(status));
-	else
-		exit_with_standard_error(r, "something unexpected occured\n", 1, 0);
+	treat_pipe_aftermath(r, status);
 }
 
 void	execute_node(t_node *node, t_root *r)
